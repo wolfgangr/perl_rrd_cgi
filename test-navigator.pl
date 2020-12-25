@@ -8,7 +8,7 @@ use CGI qw/:standard/;
 use Data::Dumper ;
 use RRDs ;
 
-our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `date`
+our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 
 # calculate interval:
 # try to parse rrd AT notation
@@ -37,6 +37,9 @@ my $frm_intvl = param('intvl') ;
 my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
 my $interval = $numend - $numstart;
 
+#  $num{start|end|intvl}  numerical value to calculate with
+#  $frm_{start|end|intvl} value to render in form as preset
+
 # if (0 ) { 
 if ( param('shift_ll')) {
    $frm_end = ($numend -= $interval);
@@ -54,6 +57,16 @@ if ( param('shift_ll')) {
    $frm_end = ($numend += $interval / 2 );
    $frm_start = ($numstart = $numend - $interval);
    $frm_intvl = $interval;
+} elsif ( param('zoom_out')) {
+   $frm_end = ($numend += $interval / 2 );
+   $interval *= 2 ;
+   $frm_start = ($numstart = $numend - $interval);
+   $frm_intvl = $interval;
+} elsif ( param('zoom_in')) {
+   $frm_end = ($numend -= $interval / 4 );
+   $interval /= 2 ;
+   $frm_start = ($numstart = $numend - $interval);
+   $frm_intvl = $interval;
 
 }
 
@@ -65,8 +78,8 @@ print header,
 	hr,
 
 
-	"<table><tr>\n", 
-        start_form,
+	"<table>" , start_form , "<tr>\n", 
+	# start_form,
 ;
 
 printf '<td>ab:<input  type="text" name="start" value="%s" size="3" /></td>' , $frm_start ;
@@ -74,17 +87,21 @@ printf '<td>bis:<input type="text" name="end"   value="%s" size="3" /></td>' , $
 printf '<td>Int:<input type="text" name="intvl" value="%s" size="3" /></td>' , $frm_intvl  ;
 
 print
-	"</td>\n<td>", "|</td><td>Res:" ,
-        popup_menu(-name=>'res',  -size=>1 ,
-                   -values=>['30','300','3600','86400']),
+#	"</td>\n<td>", "|</td><td>Res:" ,
+#        popup_menu(-name=>'res',  -size=>1 ,
+#                   -values=>['30','300','3600','86400']),
+#
+#        "</td>\n<td>",
+#        "B:",textfield(-name=>'width' ,
+#                -default=>'400', -size=>1  ),
+#        "</td>\n<td>",
+#        "H:",textfield(-name=>'height' ,
+#                -default=>'140',  -size=>1   ),
 
-        "</td>\n<td>",
-        "B:",textfield(-name=>'width' ,
-                -default=>'400', -size=>1  ),
-        "</td>\n<td>",
-        "H:",textfield(-name=>'height' ,
-                -default=>'140',  -size=>1   ),
-	
+        "\n<td>", "|</td><td>" ,
+	submit (-name=>'load', -value=>'Laden'), 
+       "</td>\n<td>",
+	defaults ( -value=>'>|<', -size=>1   ),
 
 	"</td>\n<td>", "|</td><td>" , 
 	   submit( -name=>'shift_ll', -value=>'<<', -size=>1   ),
@@ -99,16 +116,29 @@ print
            submit( -name=>'zoom_out', -value=>'-', -size=>1   ),
         "</td>\n<td>",
            submit( -name=>'zoom_in', -value=>'+', -size=>1   ),
-        "</td>\n<td>", "|</td><td>" ,
+        "</td>\n<td>", "|</td>" ,
 
-           defaults ( -value=>'res', -size=>1   ),
+	#           defaults ( -value=>'>|<', -size=>1   ),
 
-	"</td>\n<td>",
-	submit (-name=>'load', -value=>'Laden'), 
+	#	"</td>\n<td>",
+	#	submit (-name=>'load', -value=>'Laden'), 
 
-	end_form,
+	"<td>Res:" ,
+        popup_menu(-name=>'res',  -size=>1 ,
+                   -values=>['30','300','3600','86400']),
+
+        "</td>\n<td>",
+        "B:",textfield(-name=>'width' ,
+                -default=>'400', -size=>1  ),
+        "</td>\n<td>",
+        "H:",textfield(-name=>'height' ,
+                -default=>'140',  -size=>1   ),
 	
-	"</td></tr></table>\n",
+	# end_form,
+	
+	"</td></tr>" , end_form, , "</table>\n",
+	# end_form,
+
 	# hr,
    ;
 # ~~~~~~~~~~ rrd time debug
