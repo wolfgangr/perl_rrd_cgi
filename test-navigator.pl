@@ -32,20 +32,34 @@ our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 my ( $frm_start, $frm_end,  $frm_intvl) ;
 my ( $numstart, $numend, $interval);
 
-if (0) {
-# if (param('start') and param('end')) {
+# if (0) {
+if (param('start') and param('end')) {
   $frm_start = param('start') || 'e-1d' ;
   $frm_end   = param('end') || 'n'  ;
   $frm_intvl = param('intvl') ;
   ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
   $interval = $numend - $numstart;
 
-	#} elsif ( param('start') and param('end') and param('intvl')) {	
-	#} elsif ( param('start') and param('end') and param('intvl')) {
-	#} elsif ( param('start') and param('end') and param('intvl')) {
-	#} elsif ( param('start') and param('end') and param('intvl')) {
-	#} elsif ( param('start') and param('end') and param('intvl')) {
-	#} elsif ( param('start') and param('end') and param('intvl')) {
+#} elsif ( ! param('start') and   param('end') and   param('intvl')) {	
+#} elsif ( ! param('start') and   param('end') and   param('intvl')) {
+} elsif (   param('start') and ! param('end') and   param('intvl')) {
+	$frm_start = param('start') ;
+	$frm_end = sprintf "s+%s", param('intvl') ;
+	$frm_intvl = param('intvl') ;
+	($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+	$interval = $numend - $numstart;
+#} elsif (   param('start') and ! param('end') and   param('intvl')) {
+} elsif  ( ! param('start') and ! param('end') and   param('intvl')) {
+        $frm_start =  sprintf "e-%s", param('intvl') ;
+        $frm_end = 'n' ;
+	$frm_intvl = param('intvl') ;
+        ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+        $interval = $numend - $numstart;
+} elsif  ( ! param('start') and ! param('end') and ! param('intvl')) {
+	$frm_start = 'e-1d' ;
+	$frm_end = 'n' ;
+	($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+	$frm_intvl = $interval = $numend - $numstart;
 } else  {
   DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< ", param('start') , param('end') , param('intvl') ) );
 }
