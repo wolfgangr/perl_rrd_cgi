@@ -4,9 +4,9 @@ use strict ;
   # CGI script that creates a fill-out form
   # and echoes back its values.
 
-  use CGI qw/:standard/;
-  use Data::Dumper ;
-  use RRDs ;
+use CGI qw/:standard/;
+use Data::Dumper ;
+use RRDs ;
 
 our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `date`
 
@@ -14,13 +14,38 @@ our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `dat
 # try to parse rrd AT notation
 # - if 2 of (start / end / int ) are given, calcuate the third
 # - if 3 are given, ignore int
-  # - if only start is given, assume end as now and calc int
-  # - if end is given, asume int as 1 day
-  # - if only int is given, assume end as now
-  # - if nothing is given, assume end as now and int as 1d
-  # RRDs::times(start, end)
+# - if only start is given, assume end as now and calc int
+# - if end is given, asume int as 1 day
+# - if only int is given, assume end as now
+# - if nothing is given, assume end as now and int as 1d
+# RRDs::times(start, end)
+
+# our $query = new CGI;
+#our @param = $query->param;
+
+# DEBUG($query, @param);
+# my $param;
+
+# = "e-1d"  unless (defined $$param{'start'} ) ;
+# = "n"  unless (defined $$param{'end'} ) ;
 
 
+my $frm_start = param('start') || 'e-1d' ;
+my $frm_end   = param('end') || 'n'  ;
+my $frm_intvl = param('intvl') ;
+ DEBUG(  $frm_start, $frm_end , $frm_intvl ) ;
+my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+my $interval = $numend - $numstart;
+
+if (0 ) { 
+# if ( param('shift_ll')) {
+   $frm_end = $numend -= $interval;
+   $frm_start = $numstart = $numend - $interval;
+   $frm_intvl = $interval;
+}
+
+# ====================================== start HTML rendering ==================================================
+STARTHTML:
   print header,
         start_html('rrd test navigator'),
         h3('rrd test navigator'),
@@ -32,7 +57,7 @@ our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `dat
 
 	"<td>", 
 	"ab:",textfield(-name=>'start' ,
-		-default=>'e-1d', -size=>3 ),
+		-default=>'e-1' , -size=>3 ),
 
 	"</td>\n<td>",
 	"bis:",textfield(-name=>'end' ,
@@ -97,14 +122,16 @@ our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `dat
    ;
 # ~~~~~~~~~~ rrd time debug
 
-my ($numstart, $numend) = RRDs::times(param('start'), param('end'));
-my $interval = $numend - $numstart;
+# my ($numstart, $numend) = RRDs::times(param('start'), param('end'));
+# my $interval = $numend - $numstart;
+
+STARTDEBUG:
 
 print "\n<hr><pre><code>\n";
 
-printf "rrd times start %s -> %d = %s<br>\n" , param('start') , $numstart, mydatetime($numstart,) ;
-printf "rrd times end   %s -> %d = %s<br>\n" , param('end'),    $numend  , mydatetime($numend) ;
-printf "rrd times interval %s -> %d s = %s<br>\n" , param('intvl') , $interval, mytimediff2str($interval);
+printf "rrd times start %s -> %d = %s<br>\n" , $frm_start , $numstart, mydatetime($numstart,) ;
+printf "rrd times end   %s -> %d = %s<br>\n" , $frm_end ,    $numend  , mydatetime($numend) ;
+printf "rrd times interval %s -> %d s = %s<br>\n" , $frm_intvl , $interval, mytimediff2str($interval);
 
 print "\n</code></pre>\n";
 
@@ -120,6 +147,8 @@ my $query = new CGI;
 print Dumper($query);
 print "\n</code></pre><hr>\n";
 
+
+ENDHTML:
 print end_html, "\n";
 
 
@@ -164,4 +193,15 @@ sub mymodulo {
   return ( ($a - $mod) / $b, $mod  );
 } 
 
+#
+sub DEBUG {
+  print header,
+  start_html('### DEBUG ###'),
+  "\n<pre><code>\n",
+  Dumper ( @_), 
+  "\</code></pre>\n",
+  end_html
+  ;
 
+  exit; # is it bad habit to exit from a sum??	
+}
