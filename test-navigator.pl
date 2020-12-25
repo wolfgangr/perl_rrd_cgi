@@ -20,59 +20,42 @@ our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 # - if nothing is given, assume end as now and int as 1d
 
 
-my ( $frm_start, $frm_end  ) ;
+my ( $frm_start, $frm_end, $fmt_intvl  ) ;
 
 if (param('start') and param('end')) {
   $frm_start = param('start')  ;
   $frm_end   = param('end')  ;
 
-} elsif (   param('start') and ! param('end')) {
-  $frm_start = param('start')  ;
-  if ( param('intvl')) {
-    $frm_end = sprintf "s+%s", param('intvl') ;
   } else {
-    $frm_end = 's+1d' ;
+    $fmt_intvl = param('intvl') || '1d';
+
+  } elsif (   param('start') and ! param('end')) {
+    $frm_start = param('start')  ;
+    #if ( param('intvl')) {
+    $frm_end = sprintf "s+%s", param('intvl') ;
+    # else {
+    #$frm_end = 's+1d' ;
   }
 
-} elsif ( ! param('start') and   param('end')) {
-  $frm_end   = param('end')  ;
-  if ( param('intvl')) {
+  } elsif ( ! param('start') and   param('end')) {
+    $frm_end   = param('end')  ;
+    # if ( param('intvl')) {
     $frm_start = sprintf "e-%s", param('intvl') ;
-  } else {
-    $frm_start = "e-1d" ;
+    # } else {
+    # $frm_start = "e-1d" ;
   }  
 
-} elsif ( ! param('start') and ! param('end')) {
-  $frm_end = 'n' ;
-  if ( param('intvl')) {
+  } elsif ( ! param('start') and ! param('end')) {
+    $frm_end = 'n' ;
+    # if ( param('intvl')) {
     $frm_start = sprintf "e-%s", param('intvl') ;
-  } else {
-    $frm_start = "e-1d" ;
+    #} else {
+    # $frm_start = "e-1d" ;
   }
 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~
-	#} elsif ( ! param('start') and   param('end') and   param('intvl')) {	
-	#$frm_end = param('end') ;
-	#$frm_start = sprintf "e-%s", param('intvl') ;
-	#} elsif ( ! param('start') and   param('end') and ! param('intvl')) {
-	#$frm_end = param('end') ;
-	#$frm_start = "e-1d" ;
-	#} elsif (   param('start') and ! param('end') and    param('intvl')) {
-	# $frm_start = param('start') ;
-	# $frm_end = sprintf "s+%s", param('intvl') ;
-	#} elsif (   param('start') and ! param('end') and ! param('intvl')) {
-	# $frm_end = 's+1d' ;
-	# $frm_start = param('start') ;
-	#} elsif ( ! param('start') and ! param('end') and   param('intvl')) {
-	#$frm_start =  sprintf "e-%s", param('intvl') ;
-	#$frm_end = 'n' ;
-	#} elsif ( ! param('start') and ! param('end') and ! param('intvl')) {
-	#	$frm_start = 'e-1d' ;
-	#$frm_end = 'n' ;
-#~~~~~~~~~~~
-} else  {
-  DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< ", param('start') , param('end') , param('intvl') ) );
+   #} else  {
+   # should never be here
+   # DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< ", param('start') , param('end') , param('intvl') ) );
 }
 
 my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
@@ -80,20 +63,10 @@ my $interval = $numend - $numstart;
 my $frm_intvl =  param('intvl') || $interval ; # keep frm or set to seconds if missing
 
 
-# my $frm_start = param('start') || 'e-1d' ;
-# my $frm_end   = param('end') || 'n'  ;
-# my $frm_intvl = param('intvl') ;
 
 #~~~~~~~~~~~~~~~~~
 
-# DEBUG(  $frm_start, $frm_end , $frm_intvl ) ;
-# my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
-# my $interval = $numend - $numstart;
 
-#  $num{start|end|intvl}  numerical value to calculate with
-#  $frm_{start|end|intvl} value to render in form as preset
-
-# if (0 ) { 
 if ( param('shift_ll')) {
    $frm_end = ($numend -= $interval);
    $frm_start = ($numstart = $numend - $interval);
