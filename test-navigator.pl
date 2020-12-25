@@ -49,9 +49,13 @@ my $rrds_err = RRDs::error;
 
 if ($rrds_err) {  
   if ( $rrds_err =~ /start and end times cannot be specified relative to each other/ ) {
-	  DEBUG ("to do: resolve circular definition");
+	  # DEBUG ("to do: resolve circular definition");
+	  # $frm_start = 'e-1d';
+    $frm_end = 'n';
+    ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
   } else {
-    DEBUG ( sprintf "RRD reportet error >>%s<<", RRDs::error) ;
+    # report other parsing and conversion errors
+    DEBUG ( sprintf '  RRD reportet error "%s"  ', RRDs::error) ;
   }
 } 
 
