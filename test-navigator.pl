@@ -80,30 +80,23 @@ print header,
 
 	"<table>" , start_form , "<tr>\n", 
 	# start_form,
-;
+        "\n<td>" ,
+        submit (-name=>'load', -value=>'Laden'),
+       "</td>\n",
 
-printf '<td>ab:<input  type="text" name="start" value="%s" size="3" /></td>' , $frm_start ;
-printf '<td>bis:<input type="text" name="end"   value="%s" size="3" /></td>' , $frm_end   ;
-printf '<td>Int:<input type="text" name="intvl" value="%s" size="3" /></td>' , $frm_intvl  ;
+	;
+
+printf '<td>ab:<input  type="text" name="start" value="%s" size="7" /></td>' , $frm_start ;
+printf '<td>bis:<input type="text" name="end"   value="%s" size="7" /></td>' , $frm_end   ;
+printf '<td>Int:<input type="text" name="intvl" value="%s" size="7" /></td>' , $frm_intvl  ;
 
 print
-#	"</td>\n<td>", "|</td><td>Res:" ,
-#        popup_menu(-name=>'res',  -size=>1 ,
-#                   -values=>['30','300','3600','86400']),
-#
-#        "</td>\n<td>",
-#        "B:",textfield(-name=>'width' ,
-#                -default=>'400', -size=>1  ),
-#        "</td>\n<td>",
-#        "H:",textfield(-name=>'height' ,
-#                -default=>'140',  -size=>1   ),
+	# "\n<td>", "|</td><td>" ,
+	# submit (-name=>'load', -value=>'Laden'), 
+        # "</td>\n<td>",
+	# defaults ( -value=>'>|<', -size=>1   ),
 
-        "\n<td>", "|</td><td>" ,
-	submit (-name=>'load', -value=>'Laden'), 
-       "</td>\n<td>",
-	defaults ( -value=>'>|<', -size=>1   ),
-
-	"</td>\n<td>", "|</td><td>" , 
+	"\n<td>", "|</td><td>" , 
 	   submit( -name=>'shift_ll', -value=>'<<', -size=>1   ),
         "</td>\n<td>",
            submit( -name=>'shift_l', -value=>'<', -size=>1   ),
@@ -116,12 +109,9 @@ print
            submit( -name=>'zoom_out', -value=>'-', -size=>1   ),
         "</td>\n<td>",
            submit( -name=>'zoom_in', -value=>'+', -size=>1   ),
+        "</td>\n<td>",
+	   defaults ( -value=>'>|<', -size=>1   ),
         "</td>\n<td>", "|</td>" ,
-
-	#           defaults ( -value=>'>|<', -size=>1   ),
-
-	#	"</td>\n<td>",
-	#	submit (-name=>'load', -value=>'Laden'), 
 
 	"<td>Res:" ,
         popup_menu(-name=>'res',  -size=>1 ,
