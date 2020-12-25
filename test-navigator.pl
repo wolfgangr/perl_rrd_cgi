@@ -29,13 +29,36 @@ our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 # = "e-1d"  unless (defined $$param{'start'} ) ;
 # = "n"  unless (defined $$param{'end'} ) ;
 
+my ( $frm_start, $frm_end,  $frm_intvl) ;
+my ( $numstart, $numend, $interval);
 
-my $frm_start = param('start') || 'e-1d' ;
-my $frm_end   = param('end') || 'n'  ;
-my $frm_intvl = param('intvl') ;
+if (0) {
+# if (param('start') and param('end')) {
+  $frm_start = param('start') || 'e-1d' ;
+  $frm_end   = param('end') || 'n'  ;
+  $frm_intvl = param('intvl') ;
+  ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+  $interval = $numend - $numstart;
+
+	#} elsif ( param('start') and param('end') and param('intvl')) {	
+	#} elsif ( param('start') and param('end') and param('intvl')) {
+	#} elsif ( param('start') and param('end') and param('intvl')) {
+	#} elsif ( param('start') and param('end') and param('intvl')) {
+	#} elsif ( param('start') and param('end') and param('intvl')) {
+	#} elsif ( param('start') and param('end') and param('intvl')) {
+} else  {
+  DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< ", param('start') , param('end') , param('intvl') ) );
+}
+
+# my $frm_start = param('start') || 'e-1d' ;
+# my $frm_end   = param('end') || 'n'  ;
+# my $frm_intvl = param('intvl') ;
+
+#~~~~~~~~~~~~~~~~~
+
 # DEBUG(  $frm_start, $frm_end , $frm_intvl ) ;
-my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
-my $interval = $numend - $numstart;
+# my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+# my $interval = $numend - $numstart;
 
 #  $num{start|end|intvl}  numerical value to calculate with
 #  $frm_{start|end|intvl} value to render in form as preset
