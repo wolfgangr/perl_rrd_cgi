@@ -42,6 +42,19 @@ if ( param('shift_ll')) {
    $frm_end = ($numend -= $interval);
    $frm_start = ($numstart = $numend - $interval);
    $frm_intvl = $interval;
+} elsif ( param('shift_l')) {
+   $frm_end = ($numend -= $interval / 2 );
+   $frm_start = ($numstart = $numend - $interval);
+   $frm_intvl = $interval;
+} elsif ( param('shift_rr')) {
+   $frm_end = ($numend += $interval);
+   $frm_start = ($numstart = $numend - $interval);
+   $frm_intvl = $interval;
+} elsif ( param('shift_r')) {
+   $frm_end = ($numend += $interval / 2 );
+   $frm_start = ($numstart = $numend - $interval);
+   $frm_intvl = $interval;
+
 }
 
 # ====================================== start HTML rendering ==================================================
@@ -55,56 +68,30 @@ print header,
 	"<table><tr>\n", 
         start_form,
 ;
-  #	"<td>", 
-  #	"ab:",textfield(-name=>'start' ,
-  #		-value=>"$frm_start" , -size=>3 ),
-  #
-  #	"</td>\n<td>",
-  #	"bis:",textfield(-name=>'end' ,
-  #              -value=>"$frm_end",  -size=>3 ),
-  #
-  #      "</td>\n<td>",
-  #     "Int:",textfield(-name=>'intvl' ,
-  #              -value=>"$frm_intvl",  -size=>3 ),
 
 printf '<td>ab:<input  type="text" name="start" value="%s" size="3" /></td>' , $frm_start ;
 printf '<td>bis:<input type="text" name="end"   value="%s" size="3" /></td>' , $frm_end   ;
 printf '<td>Int:<input type="text" name="intvl" value="%s" size="3" /></td>' , $frm_intvl  ;
 
-
-	# "</td>\n<td>", 
-	# "What's the combination?", p,
-	# checkbox_group(-name=>'words',
-	#                -values=>['eenie','meenie','minie','moe'],
-	#                -defaults=>['eenie','minie']), p,
 print
 	"</td>\n<td>", "|</td><td>Res:" ,
- 
         popup_menu(-name=>'res',  -size=>1 ,
                    -values=>['30','300','3600','86400']),
-
-	# "</td>\n<td>", " for | bar",
-	# submit( -name=>'zoom', -value=>'x', -size=>1   ),	   
 
         "</td>\n<td>",
         "B:",textfield(-name=>'width' ,
                 -default=>'400', -size=>1  ),
-
-
         "</td>\n<td>",
         "H:",textfield(-name=>'height' ,
                 -default=>'140',  -size=>1   ),
 	
-	# "</td>\n<td>",
-	# radio_group('jump',['<<','<', '>', '>>', '-',  '0', '+',],
-	#	-default=>'0', ) ,
 
 	"</td>\n<td>", "|</td><td>" , 
 	   submit( -name=>'shift_ll', -value=>'<<', -size=>1   ),
         "</td>\n<td>",
            submit( -name=>'shift_l', -value=>'<', -size=>1   ),
         "</td>\n<td>",
-           submit( -name=>'shiftr_r', -value=>'>', -size=>1   ),
+           submit( -name=>'shift_r', -value=>'>', -size=>1   ),
         "</td>\n<td>",
            submit( -name=>'shift_rr', -value=>'>>', -size=>1   ),
         "</td>\n<td>", "|</td><td>" ,
