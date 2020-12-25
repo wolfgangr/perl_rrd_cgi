@@ -9,7 +9,7 @@ use Data::Dumper ;
 use RRDs ;
 
 our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
-
+our $RRDdtf = "+\'%d.%m.%Y %H:%M\'" ; # RRD does not like seconds here 
 # calculate interval:
 # try to parse rrd AT notation
 # - if 2 of (start / end / int ) are given, calcuate the third
@@ -55,7 +55,8 @@ if ($rrds_err) {
     ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
   } else {
     # report other parsing and conversion errors
-    DEBUG ( sprintf '  RRD reportet error "%s"  ', RRDs::error) ;
+    DEBUG ( sprintf '  RRD reportet error "%s" %s start->|%s|<   end->|%s|<  ', 
+	    RRDs::error, "\n", $frm_start, $frm_end) ;
   }
 } 
 
@@ -63,43 +64,51 @@ my $interval = $numend - $numstart;
 $frm_intvl =  $frm_intvl || param('intvl') || $interval ; # keep frm or set to seconds if missing
 
 unless ($interval) {
+ # should not be here, if RRD is working as expected
  DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< "
 		 . " numstart=>|%s|,  numend=>|%s|, interval=>|%s| ",
 		 param('start') , param('end') , param('intvl'),  
-		 $numstart, $numend, $interval
+		 $numstart, $numend , $interval
 	 ) );
 }
 
 #~~~~~~~~~~~~~~~~~
 
-
+my $recalc =0;
 if ( param('shift_ll')) {
-   $frm_end = ($numend -= $interval);
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_end =  rrddatetime($numend -= $interval);
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 } elsif ( param('shift_l')) {
-   $frm_end = ($numend -= $interval / 2 );
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_end = rrddatetime($numend -= $interval / 2 );
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 } elsif ( param('shift_rr')) {
-   $frm_end = ($numend += $interval);
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_end = rrddatetime($numend += $interval);
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 } elsif ( param('shift_r')) {
-   $frm_end = ($numend += $interval / 2 );
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_end = rrddatetime($numend += $interval / 2 );
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 } elsif ( param('zoom_out')) {
-   $frm_end = ($numend += $interval / 2 );
+   $frm_end = rrddatetime($numend += $interval / 2 );
    $interval *= 2 ;
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 } elsif ( param('zoom_in')) {
-   $frm_end = ($numend -= $interval / 4 );
+   $frm_end = rrddatetime($numend -= $interval / 4 );
    $interval /= 2 ;
-   $frm_start = ($numstart = $numend - $interval);
+   $frm_start = rrddatetime($numstart = $numend - $interval);
    $frm_intvl = $interval;
 
+}
+
+# rrd does not seem to like human readable second formats?
+if (0) {
+  $frm_start = mydatetime($numstart) ;
+  $frm_end   = mydatetime($numstart) ;
+  $frm_intvl = mytimediff2str ($interval);
 }
 
 # ====================================== start HTML rendering ==================================================
@@ -199,9 +208,16 @@ exit;
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sub mydatetime {
   my $arg = shift;
-  my $rv =`date -d \@$arg $dtformat` ;
+  my $dtf = shift;
+  $dtf = $dtformat unless $dtf ;
+  my $rv =`date -d \@$arg $dtf` ;
   chomp $rv;
   return $rv ;
+}
+
+sub rrddatetime {
+  my $arg = shift;
+  return mydatetime ($arg , $RRDdtf) ;
 }
 
 # converts number of seconds to human readable format
@@ -209,22 +225,22 @@ sub mytimediff2str {
   my $seconds = shift;
 
   my ($d, $r ) = mymodulo ($seconds, 60);
-  my $res = sprintf "%d sec", $r;
+  my $res = sprintf "%ds", $r;
   return $res unless $d;
 
   ($d, $r ) = mymodulo ($d, 60);
-  $res = sprintf "%d min, %s", $r, $res;
+  $res = sprintf "%dm, %s", $r, $res;
   return $res unless $d;
 
   ($d, $r ) = mymodulo ($d, 24 );
-  $res = sprintf "%d hr, %s", $r, $res;
+  $res = sprintf "%dhr, %s", $r, $res;
   return $res unless $d;
 
   ($d, $r ) = mymodulo ($d, 7);
-  $res = sprintf "%d days, %s", $r, $res;
+  $res = sprintf "%dd, %s", $r, $res;
   return $res unless $d;
 
-  $res = sprintf "%d weeks, %s", $d, $res;
+  $res = sprintf "%dw, %s", $d, $res;
   return $res;
 }
 
