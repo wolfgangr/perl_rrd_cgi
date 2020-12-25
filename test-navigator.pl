@@ -41,7 +41,7 @@ if (param('start') and param('end')) {
   $interval = $numend - $numstart;
 
 } elsif ( ! param('start') and   param('end') and   param('intvl')) {	
-        $frm_ende = param('ende') ;
+        $frm_end = param('end') ;
         $frm_start = sprintf "e-%s", param('intvl') ;
         $frm_intvl = param('intvl') ;
         ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
