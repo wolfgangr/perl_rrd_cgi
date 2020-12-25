@@ -33,20 +33,20 @@ our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `dat
 my $frm_start = param('start') || 'e-1d' ;
 my $frm_end   = param('end') || 'n'  ;
 my $frm_intvl = param('intvl') ;
- DEBUG(  $frm_start, $frm_end , $frm_intvl ) ;
+# DEBUG(  $frm_start, $frm_end , $frm_intvl ) ;
 my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
 my $interval = $numend - $numstart;
 
-if (0 ) { 
-# if ( param('shift_ll')) {
-   $frm_end = $numend -= $interval;
-   $frm_start = $numstart = $numend - $interval;
+# if (0 ) { 
+if ( param('shift_ll')) {
+   $frm_end = ($numend -= $interval);
+   $frm_start = ($numstart = $numend - $interval);
    $frm_intvl = $interval;
 }
 
 # ====================================== start HTML rendering ==================================================
 STARTHTML:
-  print header,
+print header,
         start_html('rrd test navigator'),
         h3('rrd test navigator'),
 	hr,
@@ -54,18 +54,22 @@ STARTHTML:
 
 	"<table><tr>\n", 
         start_form,
+;
+  #	"<td>", 
+  #	"ab:",textfield(-name=>'start' ,
+  #		-value=>"$frm_start" , -size=>3 ),
+  #
+  #	"</td>\n<td>",
+  #	"bis:",textfield(-name=>'end' ,
+  #              -value=>"$frm_end",  -size=>3 ),
+  #
+  #      "</td>\n<td>",
+  #     "Int:",textfield(-name=>'intvl' ,
+  #              -value=>"$frm_intvl",  -size=>3 ),
 
-	"<td>", 
-	"ab:",textfield(-name=>'start' ,
-		-default=>'e-1' , -size=>3 ),
-
-	"</td>\n<td>",
-	"bis:",textfield(-name=>'end' ,
-                -default=>'n',  -size=>3 ),
-
-        "</td>\n<td>",
-        "Int:",textfield(-name=>'intvl' ,
-                -default=>'',  -size=>3 ),
+printf '<td>ab:<input  type="text" name="start" value="%s" size="3" /></td>' , $frm_start ;
+printf '<td>bis:<input type="text" name="end"   value="%s" size="3" /></td>' , $frm_end   ;
+printf '<td>Int:<input type="text" name="intvl" value="%s" size="3" /></td>' , $frm_intvl  ;
 
 
 	# "</td>\n<td>", 
@@ -73,7 +77,7 @@ STARTHTML:
 	# checkbox_group(-name=>'words',
 	#                -values=>['eenie','meenie','minie','moe'],
 	#                -defaults=>['eenie','minie']), p,
-
+print
 	"</td>\n<td>", "|</td><td>Res:" ,
  
         popup_menu(-name=>'res',  -size=>1 ,
