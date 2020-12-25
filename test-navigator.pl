@@ -33,21 +33,38 @@ if (param('start') and param('end')) {
     $frm_start = param('start')  ;
     $frm_end = sprintf "s+%s", $frm_intvl ;
 
-  } elsif ( ! param('start') and   param('end')) {
-    $frm_end   = param('end')  ;
+  } else {  
     $frm_start = sprintf "e-%s", $frm_intvl ;
-
-  } elsif ( ! param('start') and ! param('end')) {
-    $frm_end = 'n' ;
-    $frm_start = sprintf "e-%s", $frm_intvl ;
+    $frm_end   = param('end')  || 'n' ;
   }
 }
 
+# still weird cases not catched:
+# - circular reference 
+# - in case of overdefined conflicting vars: 'intvl' is kept in form
+# but processing 
+
 my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+my $rrds_err = RRDs::error;
+
+if ($rrds_err) {  
+  if ( $rrds_err =~ /start and end times cannot be specified relative to each other/ ) {
+	  DEBUG ("to do: resolve circular definition");
+  } else {
+    DEBUG ( sprintf "RRD reportet error >>%s<<", RRDs::error) ;
+  }
+} 
+
 my $interval = $numend - $numstart;
 $frm_intvl =  $frm_intvl || param('intvl') || $interval ; # keep frm or set to seconds if missing
 
-
+unless ($interval) {
+ DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< "
+		 . " numstart=>|%s|,  numend=>|%s|, interval=>|%s| ",
+		 param('start') , param('end') , param('intvl'),  
+		 $numstart, $numend, $interval
+	 ) );
+}
 
 #~~~~~~~~~~~~~~~~~
 
