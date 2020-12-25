@@ -8,6 +8,8 @@ use strict ;
   use Data::Dumper ;
   use RRDs ;
 
+our $dtformat = '+\'%d.%m.%Y - %T\'' ; # datetime format string for console `date`
+
 # calculate interval:
 # try to parse rrd AT notation
 # - if 2 of (start / end / int ) are given, calcuate the third
@@ -98,11 +100,11 @@ use strict ;
 my ($numstart, $numend) = RRDs::times(param('start'), param('end'));
 my $interval = $numend - $numstart;
 
-print "\n<hr><p>\n<pre><code>\n";
+print "\n<hr><pre><code>\n";
 
-printf "rrd times start %s -> %d = %s<br>\n" , param('start') , $numstart, '' ;
-printf "rrd times end   %s -> %d = %s<br>\n" , param('end'), $numend , '' ;
-printf "rrd times interval %s -> %d s<br>\n" , param('intvl'), $interval;
+printf "rrd times start %s -> %d = %s<br>\n" , param('start') , $numstart, mydatetime($numstart,) ;
+printf "rrd times end   %s -> %d = %s<br>\n" , param('end'),    $numend  , mydatetime($numend) ;
+printf "rrd times interval %s -> %d s = %s<br>\n" , param('intvl') , $interval, mytimediff2str($interval);
 
 print "\n</code></pre>\n";
 
@@ -119,3 +121,47 @@ print Dumper($query);
 print "\n</code></pre><hr>\n";
 
 print end_html, "\n";
+
+
+exit;
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sub mydatetime {
+  my $arg = shift;
+  my $rv =`date -d \@$arg $dtformat` ;
+  chomp $rv;
+  return $rv ;
+}
+
+# converts number of seconds to human readable format
+sub mytimediff2str {
+  my $seconds = shift;
+
+  my ($d, $r ) = mymodulo ($seconds, 60);
+  my $res = sprintf "%d sec", $r;
+  return $res unless $d;
+
+  ($d, $r ) = mymodulo ($d, 60);
+  $res = sprintf "%d min, %s", $r, $res;
+  return $res unless $d;
+
+  ($d, $r ) = mymodulo ($d, 24 );
+  $res = sprintf "%d hr, %s", $r, $res;
+  return $res unless $d;
+
+  ($d, $r ) = mymodulo ($d, 7);
+  $res = sprintf "%d days, %s", $r, $res;
+  return $res unless $d;
+
+  $res = sprintf "%d weeks, %s", $d, $res;
+  return $res;
+}
+
+# moduolo div returning both mod an remainder
+sub mymodulo {
+  my ($a, $b) = @_;
+  my $mod = $a % $b ;
+  # $a -= ($b * $mod);
+  return ( ($a - $mod) / $b, $mod  );
+} 
+
+
