@@ -31,15 +31,15 @@ if (param('start') and param('end')) {
 
   if (   param('start') and ! param('end')) {
     $frm_start = param('start')  ;
-    $frm_end = sprintf "s+%s", param('intvl') ;
+    $frm_end = sprintf "s+%s", $frm_intvl ;
 
   } elsif ( ! param('start') and   param('end')) {
     $frm_end   = param('end')  ;
-    $frm_start = sprintf "e-%s", param('intvl') ;
+    $frm_start = sprintf "e-%s", $frm_intvl ;
 
   } elsif ( ! param('start') and ! param('end')) {
     $frm_end = 'n' ;
-    $frm_start = sprintf "e-%s", param('intvl') ;
+    $frm_start = sprintf "e-%s", $frm_intvl ;
   }
 }
 
