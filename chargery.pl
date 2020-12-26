@@ -145,7 +145,7 @@ for my $target (@targets) {
   my $res_hash = RRDs::graphv( @rrdg_array  );
   $rrds_err = RRDs::error;
   if ($rrds_err) {
-    DEBUG ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array ) ;
+    debug ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array ) ;
   }
 
   # DEBUG ($res_hash) ;
@@ -210,13 +210,15 @@ print
 
 #--------------------------------------------------------------------------------------
 # render the images
-   #
+   # colspan=999 is a crude hack
+print "\n<tr><td colspan=999><hr></td></tr>\n";
+
 for my $target (@targets) {
   my $rrdg_img = sprintf "%s/%s.png", $tmpdir, $target ;
 
-  print "\n<tr><td colspan=30>";
+  print "<tr><td colspan=999>";
   printf '<img src="%s" >' , $rrdg_img ;
-  print "</td></tr>";
+  print "</td></tr>\n";
 
 }
 
@@ -302,15 +304,21 @@ sub mymodulo {
   return ( ($a - $mod) / $b, $mod  );
 } 
 
-#
-sub DEBUG {
-  print header,
-  start_html('### DEBUG ###'),
-  "\n<pre><code>\n",
-  Dumper ( @_), 
-  "\</code></pre>\n",
-  end_html
+# debug with continued laoding
+sub debug {
+  print
+    "\n<pre><code>\n",
+    Dumper ( @_), 
+    "\</code></pre>\n",
   ;
+}
 
-  exit; # is it bad habit to exit from a sum??	
+# final die like debug
+sub DEBUG {
+    print header,
+    start_html('### DEBUG ###'),
+    debug ( @_) ,
+    end_html
+  ;
+  exit; # is it bad habit to exit from a sum??  
 }
