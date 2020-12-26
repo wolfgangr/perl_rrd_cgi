@@ -164,11 +164,6 @@ printf '<td>bis:<input type="text" name="end"   value="%s" size="7" /></td>' , $
 printf '<td>Int:<input type="text" name="intvl" value="%s" size="7" /></td>' , $frm_intvl  ;
 
 print
-	# "\n<td>", "|</td><td>" ,
-	# submit (-name=>'load', -value=>'Laden'), 
-        # "</td>\n<td>",
-	# defaults ( -value=>'>|<', -size=>1   ),
-
 	"\n<td>", "|</td><td>" , 
 	   submit( -name=>'shift_ll', -value=>'<<', -size=>1   ),
         "</td>\n<td>",
@@ -199,15 +194,19 @@ print
 	
 	# end_form,
 	
-	"</td></tr>" , end_form, , "</table>\n",
+	"</tid></tr>" , end_form, #, "</table>\n",
 	# end_form,
 
 	# hr,
    ;
+
+print "\n<tr><td colspan=30>";
+printf '<img src="%s" >' , $rrdg_img ;
+print "</td></tr></table>\n";
+
+goto ENDHTML ;
 # ~~~~~~~~~~ rrd time debug
 
-# my ($numstart, $numend) = RRDs::times(param('start'), param('end'));
-# my $interval = $numend - $numstart;
 
 STARTDEBUG:
 
@@ -222,6 +221,8 @@ print "\n</code></pre>\n";
 # end %d interval: %d"
 
 # ~~~~~~~~ simple variable dump
+
+HASHDEBUG:
 print "\n<hr><p>\n";
 print CGI::Dump();
 

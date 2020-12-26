@@ -1,5 +1,3 @@
---lower-limit=55.9
---upper-limit=56.2
 --rigid
 --left-axis-format
 %2.2lf
