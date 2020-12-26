@@ -1,0 +1,7 @@
+--lower-limit=55.9
+--upper-limit=56.2
+--rigid
+--left-axis-format
+%2.2lf
+DEF:a=/home/wrosner/chargery/rrd/pack56.rrd:Vtot:AVERAGE
+LINE2:a#FF0000:Vtot AVERAGE
