@@ -178,15 +178,17 @@ STARTHTML:
 print header,
         start_html($title),
         h3($title),
-	hr,
+	# hr,
 
 
-	"<table>" , start_form , "<tr>\n", 
+	"<table>" , start_form ,  
+	"\n<tr><td colspan=999><hr></td></tr>\n", 
+  ;
+
 	# start_form,
-        "\n<td>" ,
+print "\n<tr><td>" ,
         submit (-name=>'load', -value=>'Laden'),
        "</td>\n",
-
 	;
 
 printf '<td>ab:<input  type="text" name="start" value="%s" size="7" /></td>' , $frm_start ;
@@ -222,12 +224,18 @@ print
         "H:",textfield(-name=>'height' ,
                 -default=>'140',  -size=>1   ),
 	
-	# end_form,
-	
 	"</tid></tr>" , end_form, #, "</table>\n",
 	# end_form,
-
-	# hr,
+  ;
+print "\n<tr><td colspan=999><hr></td></tr>\n";
+print "<tr><td colspan=999><font size='-1'>\n";   
+printf "start: <b>'%s'</b> -> %d = %s\n" , $frm_start , $numstart, mydatetime($numstart,) ;
+print "  &nbsp;&nbsp;&nbsp;  \n";
+printf "end: <b>'%s'</b> -> %d = %s\n" , $frm_end ,    $numend  , mydatetime($numend) ;
+print "  &nbsp;&nbsp;&nbsp;  \n";
+printf "interval: <b>'%s' </b> -> %d s = %s\n" , $frm_intvl , $interval, mytimediff2str($interval);
+print "</font></td></tr>\n<tr>";
+# "<td colspan=999><hr></td></tr>\n"; 
    ;
 
 
