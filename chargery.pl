@@ -11,6 +11,10 @@ use RRDs ;
 our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 our $RRDdtf = "+\'%d.%m.%Y %H:%M\'" ; # RRD does not like seconds here 
 our $title = "Chargery BMS @" . `hostname -f` ;
+our $tmpdir= "./tmp" ; 
+our @targets = qw (BMS-Utot BMS-tmp);
+
+
 # calculate interval:
 # try to parse rrd AT notation
 # - if 2 of (start / end / int ) are given, calcuate the third
@@ -116,33 +120,36 @@ if (0) {
 #  --start, --end, --height, --width, --base  werden dynamisch erstellt
 #   --imgformat=PNG --interlaced
 # der Rest wird in einem Deffile geladen
-my $rrdg_tail = `cat BMS-Utot.rrd-graph` ;
-my $rrdg_img = "./tmp/BMS-Utot.png" ;
-my $rrdg_string = sprintf ("%s\n" , $rrdg_img)
-  . sprintf ("--start\n%s\n" , $frm_start )
-  . sprintf ("--end\n%s\n" , $frm_end )
-  # . sprintf ("--base %s\n" ,  param('base'))
-  # . sprintf ("--width %s\n" , param('width')) 
-  # . sprintf ("--height %s\n" ,  param('height')) 
-  # . "--imgformat=PNG\n"
-  # . " --interlaced\n"
-  #  . "somebullshitt\n"
-  . $rrdg_tail
-;
+#
+for my $target (@targets) {
+  my $rrdg_img = sprintf "%s/%s.png", $tmpdir, $target ;
+  my $rrdg_def = sprintf "./%s.rrd-graph",  $target ;
+  my $rrdg_tail = `cat $rrdg_def` ;
 
-my @rrdg_array = split '\n', $rrdg_string;
+  my $rrdg_string = sprintf ("%s\n" , $rrdg_img)
+    . sprintf ("--start\n%s\n" , $frm_start )
+    . sprintf ("--end\n%s\n" , $frm_end )
+    . sprintf ("--step\n%s\n" ,  param('res'))
+    . sprintf ("--width\n%s\n" , param('width')) 
+    . sprintf ("--height\n%s\n" ,  param('height')) 
+    . "--imgformat=PNG\n"
+    . "--interlaced\n"
+    . $rrdg_tail
+  ;
 
-# DEBUG (@rrdg_array );
+  my @rrdg_array = split '\n', $rrdg_string;
 
-# my ($result_arr,$xsize,$ysize)  = RRDs::graph($rrdg_string);
-my $res_hash = RRDs::graphv( @rrdg_array  );
-$rrds_err = RRDs::error;
-if ($rrds_err) {
-  DEBUG ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array ) ;
+  # DEBUG (@rrdg_array );
+
+  # my ($result_arr,$xsize,$ysize)  = RRDs::graph($rrdg_string);
+  my $res_hash = RRDs::graphv( @rrdg_array  );
+  $rrds_err = RRDs::error;
+  if ($rrds_err) {
+    DEBUG ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array ) ;
+  }
+
+  # DEBUG ($res_hash) ;
 }
-
-# DEBUG ($res_hash) ;
-
 # ====================================== start HTML rendering ==================================================
 STARTHTML:
 print header,
@@ -200,10 +207,20 @@ print
 	# hr,
    ;
 
-print "\n<tr><td colspan=30>";
-printf '<img src="%s" >' , $rrdg_img ;
-print "</td></tr></table>\n";
 
+#--------------------------------------------------------------------------------------
+# render the images
+   #
+for my $target (@targets) {
+  my $rrdg_img = sprintf "%s/%s.png", $tmpdir, $target ;
+
+  print "\n<tr><td colspan=30>";
+  printf '<img src="%s" >' , $rrdg_img ;
+  print "</td></tr>";
+
+}
+
+print "</table>\n";
 goto ENDHTML ;
 # ~~~~~~~~~~ rrd time debug
 
