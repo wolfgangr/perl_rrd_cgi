@@ -25,7 +25,8 @@ our @targets = qw (BMS-Utot BMS-tmp);
 # - if nothing is given, assume end as now and int as 1d
 
 
-my ( $frm_start, $frm_end, $frm_intvl  ) ;
+our ( $frm_start, $frm_end, $frm_intvl  ) ;
+
 
 if (param('start') and param('end')) {
   $frm_start = param('start')  ;
@@ -48,13 +49,26 @@ if (param('start') and param('end')) {
 # - circular reference 
 # - in case of overdefined conflicting vars: 'intvl' is kept in form
 # but processing 
+if (0) { 
+ debug ( sprintf ( "preprocessing \n"
+                 . " frm_start %s   frm_end %s   frm_intvl %s  \n"
+		 . " %s  %s  %s  \n" 
+                 . " param('start')= >%s<   param('end') >%s<   param('intvl') >%s<  \n" ,
+             	$frm_start, $frm_end, $frm_intvl,
+	     	bool2str ($frm_start) , bool2str ($frm_end), bool2str ($frm_intvl),
+	        param('start') , param('end') , param('intvl'),
 
-my ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
+         ) );
+}
+
+
+# my ($frm_start_clone, $frm_end_clone) = ($frm_start, $frm_end);
+our ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
 my $rrds_err = RRDs::error;
 
 if ($rrds_err) {  
   if ( $rrds_err =~ /start and end times cannot be specified relative to each other/ ) {
-	  # DEBUG ("to do: resolve circular definition");
+	  debug ("to do: resolve circular definition");
 	  # $frm_start = 'e-1d';
     $frm_end = 'n';
     ($numstart, $numend) = RRDs::times($frm_start, $frm_end);
@@ -65,15 +79,19 @@ if ($rrds_err) {
   }
 } 
 
-my $interval = $numend - $numstart;
+our $interval = $numend - $numstart;
 $frm_intvl =  $frm_intvl || param('intvl') || $interval ; # keep frm or set to seconds if missing
 
 unless ($interval) {
+ 
  # should not be here, if RRD is working as expected
- DEBUG ( sprintf ( "unprocessed case start=>|%s|<  end=>|%s|<  intvl=>|%s|< "
-		 . " numstart=>|%s|,  numend=>|%s|, interval=>|%s| ",
-		 param('start') , param('end') , param('intvl'),  
-		 $numstart, $numend , $interval
+ debug ( sprintf ( "after processing \n"
+                 . " frm_start=>|%s|  frm_end=>|%s|<  frm_intvl=>|%s|< \n"
+		 . " numstart=>|%s|  numend=>|%s|<  interval=>|%s|< \n" 
+		 . " param('start')=>|%s|<  param('end')=>|%s|<  param('intvl')=>|%s|< \n" ,
+	     $frm_start, $frm_end, $frm_intvl, 
+	     $numstart, $numend , $interval,
+	     param('start') , param('end') , param('intvl'),
 	 ) );
 }
 
@@ -110,11 +128,11 @@ if ( param('shift_ll')) {
 }
 
 # rrd does not seem to like human readable second formats?
-if (0) {
-  $frm_start = mydatetime($numstart) ;
-  $frm_end   = mydatetime($numstart) ;
-  $frm_intvl = mytimediff2str ($interval);
-}
+#if (0) {
+#  $frm_start = mydatetime($numstart) ;
+#  $frm_end   = mydatetime($numstart) ;
+#  $frm_intvl = mytimediff2str ($interval);
+#}
 # ===================================== create chart(s) =====================================================
 
 #  --start, --end, --height, --width, --base  werden dynamisch erstellt
@@ -127,12 +145,15 @@ for my $target (@targets) {
   my $rrdg_tail = `cat $rrdg_def` ;
 
   my $rrdg_string = sprintf ("%s\n" , $rrdg_img)
-    . sprintf ("--start\n%s\n" , $frm_start )
-    . sprintf ("--end\n%s\n" , $frm_end )
-    . sprintf ("--step\n%s\n" ,  param('res'))
-    . sprintf ("--width\n%s\n" , param('width')) 
-    . sprintf ("--height\n%s\n" ,  param('height')) 
-    . "--imgformat=PNG\n"
+    . sprintf ("--start\n%s\n" ,   $numstart )
+    . sprintf ("--end\n%s\n" ,     $numend ) 
+  ;
+
+  $rrdg_string .=  sprintf ("--step\n%s\n" ,    param('res')) if param('res' );
+  $rrdg_string .=  sprintf  sprintf ("--width\n%s\n" ,   param('width')) if param('width') ;
+  $rrdg_string .=  sprintf  sprintf ("--height\n%s\n" ,  param('height')) if param('height') ;
+
+   $rrdg_string .=  "--imgformat=PNG\n"
     . "--interlaced\n"
     . $rrdg_tail
   ;
@@ -145,7 +166,9 @@ for my $target (@targets) {
   my $res_hash = RRDs::graphv( @rrdg_array  );
   $rrds_err = RRDs::error;
   if ($rrds_err) {
-    debug ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array ) ;
+    my $rmmsg = `rm $rrdg_img `;
+    debug ( sprintf "  RRD::graph error '%s'  \n",   RRDs::error, @rrdg_array, $rmmsg  ) ;
+    
   }
 
   # DEBUG ($res_hash) ;
@@ -321,4 +344,9 @@ sub DEBUG {
     end_html
   ;
   exit; # is it bad habit to exit from a sum??  
+}
+
+# return true or false label
+sub bool2str {
+  return shift ? 'TRUE' : 'FALSE' ;
 }
