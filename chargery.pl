@@ -12,7 +12,7 @@ our $dtformat = '+\'%d.%m.%Y %T\'' ; # datetime format string for console `date`
 our $RRDdtf = "+\'%d.%m.%Y %H:%M\'" ; # RRD does not like seconds here 
 our $title = "Chargery BMS @" . `hostname -f` ;
 our $tmpdir= "./tmp" ; 
-our @targets = qw (BMS-Utot BMS-tmp);
+our @targets = qw (BMS-Utot BMS-tmp BMS-Ucells);
 
 
 # calculate interval:
@@ -214,12 +214,12 @@ print
         "</td>\n<td>", "|</td>" ,
 
 	"<td>Res:" ,
-        popup_menu(-name=>'res',  -size=>1 ,
+        popup_menu(-name=>'res',  -size=>1 , -default=>'300', 
                    -values=>['30','300','3600','86400']),
 
         "</td>\n<td>",
         "B:",textfield(-name=>'width' ,
-                -default=>'400', -size=>1  ),
+                -default=>'600', -size=>1  ),
         "</td>\n<td>",
         "H:",textfield(-name=>'height' ,
                 -default=>'140',  -size=>1   ),

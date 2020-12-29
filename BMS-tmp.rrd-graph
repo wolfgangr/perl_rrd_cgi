@@ -1,5 +1,7 @@
 --rigid
 --left-axis-format
-%2.2lf
-DEF:a=/home/wrosner/chargery/rrd/pack56.rrd:Vtot:AVERAGE
-LINE2:a#0088FF:Vtot AVERAGE
+%2.1lf
+DEF:temp1=/home/wrosner/chargery/rrd/pack57.rrd:temp1:AVERAGE
+DEF:temp2=/home/wrosner/chargery/rrd/pack57.rrd:temp2:AVERAGE
+LINE1:temp1#0000ee:Temp BMS °C
+LINE1:temp2#880055:Temp Batt °C

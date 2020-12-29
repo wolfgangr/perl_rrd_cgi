@@ -1,3 +1,4 @@
+--y-grid=0.02:5
 --rigid
 --left-axis-format
 %2.2lf

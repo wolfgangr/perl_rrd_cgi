@@ -1,0 +1,49 @@
+--height=800
+--interlaced
+--left-axis-format=%1.2lf
+--y-grid=0.005:10
+--alt-autoscale
+DEF:U01=/home/wrosner/chargery/rrd//cells.rrd:U01:AVERAGE
+DEF:U02=/home/wrosner/chargery/rrd//cells.rrd:U02:AVERAGE
+DEF:U03=/home/wrosner/chargery/rrd//cells.rrd:U03:AVERAGE
+DEF:U04=/home/wrosner/chargery/rrd//cells.rrd:U04:AVERAGE
+DEF:U05=/home/wrosner/chargery/rrd//cells.rrd:U05:AVERAGE
+DEF:U06=/home/wrosner/chargery/rrd//cells.rrd:U06:AVERAGE
+DEF:U07=/home/wrosner/chargery/rrd//cells.rrd:U07:AVERAGE
+DEF:U08=/home/wrosner/chargery/rrd//cells.rrd:U08:AVERAGE
+DEF:U09=/home/wrosner/chargery/rrd//cells.rrd:U09:AVERAGE
+DEF:U10=/home/wrosner/chargery/rrd//cells.rrd:U10:AVERAGE
+DEF:U11=/home/wrosner/chargery/rrd//cells.rrd:U11:AVERAGE
+DEF:U12=/home/wrosner/chargery/rrd//cells.rrd:U12:AVERAGE
+DEF:U13=/home/wrosner/chargery/rrd//cells.rrd:U13:AVERAGE
+DEF:U14=/home/wrosner/chargery/rrd//cells.rrd:U14:AVERAGE
+DEF:U15=/home/wrosner/chargery/rrd//cells.rrd:U15:AVERAGE
+DEF:U16=/home/wrosner/chargery/rrd//cells.rrd:U16:AVERAGE
+DEF:U17=/home/wrosner/chargery/rrd//cells.rrd:U17:AVERAGE
+DEF:U18=/home/wrosner/chargery/rrd//cells.rrd:U18:AVERAGE
+DEF:U19=/home/wrosner/chargery/rrd//cells.rrd:U19:AVERAGE
+DEF:U20=/home/wrosner/chargery/rrd//cells.rrd:U20:AVERAGE
+DEF:U21=/home/wrosner/chargery/rrd//cells.rrd:U21:AVERAGE
+DEF:U22=/home/wrosner/chargery/rrd//cells.rrd:U22:AVERAGE
+LINE1:U01#fe0000:cell 01
+LINE1:U02#007f00:cell 02
+LINE1:U03#7f7f00:cell 03
+LINE1:U04#fe7f00:cell 04
+LINE1:U05#00fe00:cell 05
+LINE1:U06#7ffe00:cell 06
+LINE1:U07#fefe00:cell 07
+LINE1:U08#00007f:cell 08
+LINE1:U09#7f007f:cell 09
+LINE1:U10#fe007f:cell 10
+LINE1:U11#007f7f:cell 11
+LINE1:U12#7f7f7f:cell 12
+LINE1:U13#fe7f7f:cell 13
+LINE1:U14#00fe7f:cell 14
+LINE1:U15#7ffe7f:cell 15
+LINE1:U16#fefe7f:cell 16
+LINE1:U17#0000fe:cell 17
+LINE1:U18#7f00fe:cell 18
+LINE1:U19#fe00fe:cell 19
+LINE1:U20#007ffe:cell 20
+LINE1:U21#7f7ffe:cell 21
+LINE1:U22#fe7ffe:cell 22
