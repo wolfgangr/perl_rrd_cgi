@@ -1,5 +1,4 @@
---y-grid=0.02:5
---rigid
+--alt-autoscale
 --left-axis-format
 %2.2lf
 DEF:a=/home/wrosner/chargery/rrd/pack56.rrd:Vtot:AVERAGE

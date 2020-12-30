@@ -1,0 +1,12 @@
+DEF:a=/home/wrosner/chargery/rrd//pack56.rrd:Vtot:AVERAGE
+DEF:b=/home/wrosner/chargery/rrd//pack56.rrd:Ah:AVERAGE
+DEF:c=/home/wrosner/chargery/rrd//pack56.rrd:Wh:AVERAGE
+DEF:d=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
+DEF:e=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE
+DEF:g=/home/wrosner/chargery/rrd//pack57.rrd:SOC:AVERAGE
+LINE1:a#FFC0CB:Vtot AVERAGE
+LINE1:b#FFA500:Ah AVERAGE
+LINE1:c#008000:Wh AVERAGE
+LINE1:d#000000:curr AVERAGE
+LINE1:e#800080:mode AVERAGE
+LINE1:g#90EE90:SOC AVERAGE
