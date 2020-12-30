@@ -1,12 +1,19 @@
-DEF:a=/home/wrosner/chargery/rrd//pack56.rrd:Vtot:AVERAGE
-DEF:b=/home/wrosner/chargery/rrd//pack56.rrd:Ah:AVERAGE
-DEF:c=/home/wrosner/chargery/rrd//pack56.rrd:Wh:AVERAGE
-DEF:d=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
-DEF:e=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE
-DEF:g=/home/wrosner/chargery/rrd//pack57.rrd:SOC:AVERAGE
-LINE1:a#FFC0CB:Vtot AVERAGE
-LINE1:b#FFA500:Ah AVERAGE
-LINE1:c#008000:Wh AVERAGE
-LINE1:d#000000:curr AVERAGE
-LINE1:e#800080:mode AVERAGE
-LINE1:g#90EE90:SOC AVERAGE
+--alt-y-grid
+--height=300
+DEF:U=/home/wrosner/chargery/rrd//pack56.rrd:Vtot:AVERAGE
+DEF:Ah=/home/wrosner/chargery/rrd//pack56.rrd:Ah:AVERAGE
+DEF:Wh=/home/wrosner/chargery/rrd//pack56.rrd:Wh:AVERAGE
+DEF:Amps=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
+DEF:mode=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE
+DEF:SOC=/home/wrosner/chargery/rrd//pack57.rrd:SOC:AVERAGE
+CDEF:kWh=Wh,200,/
+CDEF:DAh=Ah,4,/
+CDEF:mode_x=mode,1,+,20,*
+LINE2:U#FF0000:U batt
+LINE2:Amps#0000ff:A
+LINE1:mode_x#333333:mode:dashes=1,1
+LINE2:U#FF0000:U batt
+LINE5:SOC#aaeecc:SOC %
+LINE2:kWh#00AA00:kWh/20 [%]
+LINE3:DAh#0000FF:Ah/400[%]:dashes=1,6
+

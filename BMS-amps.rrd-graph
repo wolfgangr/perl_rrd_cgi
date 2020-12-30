@@ -1,0 +1,13 @@
+--upper-limit=250
+--lower-limit=-250
+--rigid
+--allow-shrink
+DEF:Amps=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
+DEF:mode=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE
+CDEF:A_dir=Amps,mode,0,EQ,-1,1,IF,*
+HRULE:0#cc7777
+HRULE:200#cc7777:dashes=1,3
+HRULE:-200#cc7777:dashes=1,3
+LINE2:A_dir#0000ff:Ampere
+LINE1:Amps#7777aa:A (raw):dashes=1,3
+
