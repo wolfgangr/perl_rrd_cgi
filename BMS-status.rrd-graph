@@ -1,18 +1,28 @@
 --alt-y-grid
 --height=300
+--upper-limit=110
+--lower-limit=-10
+--rigid
+--right-axis=4:-200
+--right-axis-label=Ampere
 DEF:U=/home/wrosner/chargery/rrd//pack56.rrd:Vtot:AVERAGE
 DEF:Ah=/home/wrosner/chargery/rrd//pack56.rrd:Ah:AVERAGE
 DEF:Wh=/home/wrosner/chargery/rrd//pack56.rrd:Wh:AVERAGE
 DEF:Amps=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
 DEF:mode=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE
 DEF:SOC=/home/wrosner/chargery/rrd//pack57.rrd:SOC:AVERAGE
+CDEF:A_dir=Amps,mode,0,EQ,-1,1,IF,*
+CDEF:A_dir2=A_dir,4,/,50,+
+CDEF:A2=Amps,2,/
 CDEF:kWh=Wh,200,/
 CDEF:DAh=Ah,4,/
-CDEF:mode_x=mode,1,+,20,*
+CDEF:mode_x=mode,10,*,90,+
+HRULE:50#885555:dashes=10,2
+HRULE:50#885555:dashes=10,2
+HRULE:50#885555:dashes=10,2
 LINE2:U#FF0000:U batt
-LINE2:Amps#0000ff:A
-LINE1:mode_x#333333:mode:dashes=1,1
-LINE2:U#FF0000:U batt
+LINE2:A_dir2#0000ff:A
+LINE1:mode_x#333333:mode:dashes=1,2
 LINE5:SOC#aaeecc:SOC %
 LINE2:kWh#00AA00:kWh/20 [%]
 LINE3:DAh#0000FF:Ah/400[%]:dashes=1,6
