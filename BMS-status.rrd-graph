@@ -17,9 +17,9 @@ CDEF:A2=Amps,2,/
 CDEF:kWh=Wh,200,/
 CDEF:DAh=Ah,4,/
 CDEF:mode_x=mode,10,*,90,+
+HRULE:0#885555:dashes=10,2
 HRULE:50#885555:dashes=10,2
-HRULE:50#885555:dashes=10,2
-HRULE:50#885555:dashes=10,2
+HRULE:100#885555:dashes=10,2
 LINE2:U#FF0000:U batt
 LINE2:A_dir2#0000ff:A
 LINE1:mode_x#333333:mode:dashes=1,2
