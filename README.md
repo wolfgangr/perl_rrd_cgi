@@ -26,18 +26,19 @@ The first skript I kept using for some days now.
 Maybe it provides more maturity even if used as a boilerplate only.  
 
     *.rrd-graph
-The templates used to produce the charts on the fly.
+The templates used to produce the charts on the fly.  
+Plain `rrdgraph` syntax.
 Volatile parts are added on top from the perl navigator envelope.  
-Looks like I may overwrite them - the last occurance of some rrdgraph option seems to win.  
+Looks like I may overwrite them - the last occurance of some `rrdgraph` option seems to win.  
 I've tried it with `--height=800` in `BMS-Ucells.rrd-graph`, since this is a chart with 22 lines that simply does not make sense if scaled down.  
-rrd seems to be quite picky about surplus whitespace.  
+`rrd` seems to be quite picky about surplus whitespace.  
 Good idea to avoid them, particlarly at the end of a line.  
-No need for any trailing slashes or similiar.  
-I tried to forward all errors to the browser for efficient debugging.  
-When I get a "500 internal server error", I call the script from the command line. Helped most of the time to find the cause.  
+No need for any trailing slashes or similiar, as often found on `bash` parsed syntax.  
+I tried to forward all runtime error messages to the browser for efficient debugging.  
+When I get a `500 internal server error`, I call the script from the command line. Helped most of the time to find the (usually compile time) cause.  
 
      BMS-Ucells.pl
-Ucells is a rrd with 22 +- identical fields (in this case: cell voltages read from a battery management system)  
+Ucells is a rrd with 22 +- identical fields (in this case: cell voltages read from a battery management system).  
 Generating the graph definition file by a script may have some advantages duroing setup, debug and development.  
 Not required for ordinary data browsing.  
   
