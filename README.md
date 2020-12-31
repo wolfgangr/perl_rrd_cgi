@@ -1,5 +1,26 @@
 # perl_rrd_cgi
 ## boilerplate approach for simple rrd browsing on http
+
+### Example
+![screenshot](rrd-nav-example.png)  
+  
+Notice the navigator line at the top of the page which allows easy time browsing through some preconfigured rrd databases 
+of my choice and display them in a synchronized way.
+
+### Inspirations
+`drraw`: unfortunately not maintained for more than a decade, can't safe graph template.  
+However, I still use it for some first start version for my graph definitions.  
+Time to learn `rrdgraph` syntax, though...
+  
+`cacti`: looks great from the distance, but crazy from close up.  
+If you managed to master it, maybe you are in the wrong place here.  
+Or do you know what you are looking for?  
+  
+`collection3`: rendering companion of collectd system data rrd wizardry.  
+Has flexible rendering dependign on `rrd`s it finds in a preconfigured set.  
+Nice Java script navigator buttons on the charts, but I don't like client side scripting.  
+Tried to bend the framework for my own `rrd`s, but too much overhead for my taste.  
+
 ### Rationale
 Understand RRD, if you want to understand what follows.  
 https://oss.oetiker.ch/rrdtool/  
@@ -14,7 +35,7 @@ Whether it may do anything good for anybody else? No clue.
 Have a Navigation bar where you can change the timeframe on display in the browser without much hazzle.  
 List of charts are hardcoded in the scripts as perl arrays like here:  
 https://github.com/wolfgangr/perl_rrd_cgi/blob/03e9b2c4793ea0ad47766315c396a692e221de1d/chargery.pl#L15  
-Use ordinary rrdgraph definition syntax, where you just (may) omit the parameters added from the navigator  
+Use ordinary rrdgraph definition syntax, where you just (may) omit the parameters provided by the navigator  
 (start, end, interval, width, heigth, base...)  
 
 ### content 
@@ -39,7 +60,7 @@ When I get a `500 internal server error`, I call the script from the command lin
 
      BMS-Ucells.pl
 Ucells is a rrd with 22 +- identical fields (in this case: cell voltages read from a battery management system).  
-Generating the graph definition file by a script may have some advantages duroing setup, debug and development.  
+Generating the graph definition file by a script may have some advantages during setup, debug and development.  
 Not required for ordinary data browsing.  
   
 other `*.pl` files: just silly test scripts - as far as I can remember...
