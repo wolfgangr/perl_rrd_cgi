@@ -1,6 +1,5 @@
 --upper-limit=250
 --lower-limit=-250
---rigid
 --allow-shrink
 DEF:Amps=/home/wrosner/chargery/rrd//pack57.rrd:curr:AVERAGE
 DEF:mode=/home/wrosner/chargery/rrd//pack57.rrd:mode:AVERAGE

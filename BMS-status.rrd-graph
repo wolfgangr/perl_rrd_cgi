@@ -2,7 +2,6 @@
 --height=300
 --upper-limit=110
 --lower-limit=-10
---rigid
 --right-axis=4:-200
 --right-axis-label=Ampere
 DEF:U=/home/wrosner/chargery/rrd//pack56.rrd:Vtot:AVERAGE
