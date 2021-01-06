@@ -1,0 +1,21 @@
+--title=Overview
+--lower-limit=0
+--upper-limit=100
+--rigid
+--vertical-label=U (Volt), T (°C), P (%), SOC (%)
+--right-axis=5:-250
+--right-axis-label=I (Ampere)
+DEF:U_batt=/home/wrosner/infini/parsel//infini.rrd:U_batt:AVERAGE
+DEF:C_batt=/home/wrosner/infini/parsel//infini.rrd:C_batt:AVERAGE
+DEF:I_batt=/home/wrosner/infini/parsel//infini.rrd:I_batt:AVERAGE
+DEF:P_ACoutPerc=/home/wrosner/infini/parsel//infini.rrd:P_ACoutPerc:AVERAGE
+DEF:T_inner=/home/wrosner/infini/parsel//infini.rrd:T_inner:AVERAGE
+DEF:T_comp=/home/wrosner/infini/parsel//infini.rrd:T_comp:AVERAGE
+CDEF:I_plot=I_batt,5,/,50,+
+LINE2:U_batt#FF0000:U_batt
+HRULE:50#444444:dashes=6,3
+LINE2:I_plot#0000ff:I_batt
+LINE2:P_ACoutPerc#cccc00:P_out
+LINE2:C_batt#00aa00:SOC:dashes=3,6
+LINE1:T_inner#886633:T_inner:dashes=2,4
+LINE1:T_comp#5566aa:T_comp:dashes=1,4,2,4

@@ -1,0 +1,18 @@
+DEF:m=/home/wrosner/infini/parsel//infini.rrd:P_ACoutR:AVERAGE
+DEF:n=/home/wrosner/infini/parsel//infini.rrd:P_ACoutS:AVERAGE
+DEF:o=/home/wrosner/infini/parsel//infini.rrd:P_ACoutT:AVERAGE
+DEF:p=/home/wrosner/infini/parsel//infini.rrd:P_ACoutSum:AVERAGE
+DEF:q=/home/wrosner/infini/parsel//infini.rrd:P_ACoutPerc:AVERAGE
+DEF:r=/home/wrosner/infini/parsel//infini.rrd:P_EM_feed_def:AVERAGE
+DEF:s=/home/wrosner/infini/parsel//infini.rrd:P_EM_PV_act:AVERAGE
+DEF:t=/home/wrosner/infini/parsel//infini.rrd:P_EM_feed_act:AVERAGE
+DEF:u=/home/wrosner/infini/parsel//infini.rrd:P_EM_hybrid_res:AVERAGE
+LINE1:m#00FFFF:P_ACoutR AVERAGE
+LINE1:n#FFC0CB:P_ACoutS AVERAGE
+LINE1:o#FFA500:P_ACoutT AVERAGE
+LINE1:p#00FF00:P_ACoutSum AVERAGE
+LINE1:q#000000:P_ACoutPerc AVERAGE
+LINE1:r#800080:P_EM_feed_def AVERAGE
+LINE1:s#F08080:P_EM_PV_act AVERAGE
+LINE1:t#008000:P_EM_feed_act AVERAGE
+LINE1:u#C0C0C0:P_EM_hybrid_res AVERAGE

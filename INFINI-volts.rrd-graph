@@ -1,9 +1,11 @@
+--title=Grid parameter
 --lower-limit=220
 --upper-limit=260
 --rigid
 --alt-y-grid
+--vertical-label=U (Volt)
 --right-axis=0.02:45
---right-axis-label=Hz
+--right-axis-label=F (Hertz)
 --right-axis-format=%2.1lf
 DEF:U_ACinR=/home/wrosner/infini/parsel//infini.rrd:U_ACinR:AVERAGE
 DEF:U_ACinS=/home/wrosner/infini/parsel//infini.rrd:U_ACinS:AVERAGE
