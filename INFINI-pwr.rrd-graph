@@ -1,3 +1,8 @@
+--title=Power
+--lower-limit=0
+--upper-limit=12000
+--rigid
+--vertical-label=Watt
 DEF:m=/home/wrosner/infini/parsel//infini.rrd:P_ACoutR:AVERAGE
 DEF:n=/home/wrosner/infini/parsel//infini.rrd:P_ACoutS:AVERAGE
 DEF:o=/home/wrosner/infini/parsel//infini.rrd:P_ACoutT:AVERAGE
@@ -16,3 +21,5 @@ LINE1:r#800080:P_EM_feed_def AVERAGE
 LINE1:s#F08080:P_EM_PV_act AVERAGE
 LINE1:t#008000:P_EM_feed_act AVERAGE
 LINE1:u#C0C0C0:P_EM_hybrid_res AVERAGE
+HRULE:10000#444444:dashes=6,3
+
