@@ -11,9 +11,26 @@
 # shall report to user and to shell if everything is ok
 # i e all rrd last updates are younger than gracetime
 
-our $rrdtool = `which rrdtool   `;
-our $dtformat = '+\'%F %T\'' ; # datetime format string for console `date`
-our $now = mynow() ;
+
+use strict;
+use warnings;
+
+use Time::Piece;
+use CGI; 
+require './cgi_debug.pm' ;
+
+my $rrdtool = `which rrdtool   `;
+
+my $dtformat = '+\'%F %T\'' ; # datetime format string for console `date`
+# our $now = mynow() ;
+
+my $q = CGI->new;
+
+my $gracetime = $q->param('gracetime') || 60 ;
+my $reload= $q->param('reload') ||  10;
+my @rrds = $q->multi_param('rrd') ; # can I have multi params on the GET url?
+
+my $now = Time::Piece::time();
 
 my $firstparam = $ARGV[0] ;
 
@@ -33,7 +50,7 @@ printf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n",
 
 my $errcnt = 0;
 
-foreach $arg (@ARGV ) { 
+foreach my $arg (@ARGV ) { 
 	### printf "processing %s ", $arg ;
 	my $output =`rrdtool lastupdate $arg ` ;
 	### print "~~~~~~~~~~~~~~~~~~~~\n";
