@@ -18,6 +18,8 @@ use warnings;
 use Time::Piece;
 use CGI; 
 require './cgi_debug.pm' ;
+# use Data::Dumper::Simple ;
+use Data::Dumper ; # qw(Dump);
 
 my $rrdtool = `which rrdtool   `;
 
@@ -25,6 +27,7 @@ my $dtformat = '+\'%F %T\'' ; # datetime format string for console `date`
 # our $now = mynow() ;
 
 my $q = CGI->new;
+ 
 
 my $gracetime = $q->param('gracetime') || 60 ;
 my $reload= $q->param('reload') ||  10;
@@ -32,6 +35,10 @@ my @rrds = $q->multi_param('rrd') ; # can I have multi params on the GET url?
 
 my $now = Time::Piece::time();
 
+DEBUG( $now, \@rrds, $gracetime, $reload  );
+# DEBUG( $gracetime  , $reload , \@rrds,  $q );
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
 my $firstparam = $ARGV[0] ;
 
 if ( $firstparam   =~ /^\d+$/ ) {
