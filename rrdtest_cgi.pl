@@ -55,18 +55,19 @@ my $tp_grace = Time::Piece->new($now - $gracetime);
 my $tmdebug = sprintf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n",
 	 $tp_grace->strftime($dtformat),  $tp_now->strftime($dtformat), $gracetime;
 
-DEBUG( $now, \@rrds, \@rrdlist , $gracetime, $reload  , $tmdebug, $tmdebug  );
-# DEBUG( $gracetime  , $reload , \@rrds,  $q );
+# DEBUG( $now, \@rrds, \@rrdlist , $gracetime, $reload  , $tmdebug, $tmdebug  );
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
-# printf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n", 
-# 	$gracetime , mydatetime($now) , mydatetime($now - $gracetime ) ;
 
-# ~~~~ loop over rrds ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
+# ======= are we done now??
+
+print CGI::header ;
+print CGI::start_html('test output');
+print    "\n<pre><code>\n";
+
 
 my $errcnt = 0;
 
-foreach my $arg (@ARGV ) { 
+foreach my $arg (@rrdlist ) { 
 	### printf "processing %s ", $arg ;
 	my $output =`rrdtool lastupdate $arg ` ;
 	### print "~~~~~~~~~~~~~~~~~~~~\n";
@@ -100,7 +101,8 @@ foreach my $arg (@ARGV ) {
 	my $restofline = $2;
 
 	my $lastupdate = $1 ;
-	my $datetimestr = mydatetime($lastupdate) ;
+	# my $datetimestr = mydatetime($lastupdate) ;
+	 my $datetimestr = '### still TODO ###' ; 
 	my $lagtime = $now - $lastupdate ;
 
 	my $okstring;
@@ -119,6 +121,11 @@ foreach my $arg (@ARGV ) {
 print " =============== DONE - errors: $errcnt ==============\n";
 
 # inform the caller
-exit ( $errcnt ? 1 : 0 )  ;
+# exit ( $errcnt ? 1 : 0 )  ;
+
+print "</code></pre>\n";
+print CGI::end_html ;
+
+exit ;
 
 # ======================================
