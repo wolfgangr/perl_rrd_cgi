@@ -33,9 +33,19 @@ my $gracetime = $q->param('gracetime') || 60 ;
 my $reload= $q->param('reload') ||  10;
 my @rrds = $q->multi_param('rrd') ; # can I have multi params on the GET url?
 
-my $now = Time::Piece::time();
+my $now = time();
 
-DEBUG( $now, \@rrds, $gracetime, $reload  );
+# sanity checker for rrd adress
+# ^\~?\S+\.rrd$
+# - no whitespace
+# - end .rrd
+# may start with ~
+
+my @rrdlist = map { chomp ; $_ }  map { split "\n",  `ls -1 $_`  } grep { /^\~?\S+\.rrd$/ } @rrds ;
+
+
+
+DEBUG( $now, \@rrds, \@rrdlist , $gracetime, $reload  );
 # DEBUG( $gracetime  , $reload , \@rrds,  $q );
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
