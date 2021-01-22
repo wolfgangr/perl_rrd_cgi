@@ -23,7 +23,7 @@ use Data::Dumper ; # qw(Dump);
 
 my $rrdtool = `which rrdtool   `;
 
-my $dtformat = '+\'%F %T\'' ; # datetime format string for console `date`
+my $dtformat = '%F - %T' ; # datetime format string for console `date`
 # our $now = mynow() ;
 
 my $q = CGI->new;
@@ -33,7 +33,7 @@ my $gracetime = $q->param('gracetime') || 60 ;
 my $reload= $q->param('reload') ||  10;
 my @rrds = $q->multi_param('rrd') ; # can I have multi params on the GET url?
 
-my $now = time();
+# my $now = time();
 
 # sanity checker for rrd adress
 # ^\~?\S+\.rrd$
@@ -41,27 +41,26 @@ my $now = time();
 # - end .rrd
 # may start with ~
 
-my @rrdlist = map { chomp ; $_ }  map { split "\n",  `ls -1 $_`  } grep { /^\~?\S+\.rrd$/ } @rrds ;
+my @rrdlist = 
+	map { chomp ; $_ }  
+	map { split "\n",  `ls -1 $_`  } 
+	grep { /^\~?\S+\.rrd$/ } 
+	@rrds ;
 
 
+	# try best with time arithmetic
+my $tp_now = Time::Piece->new() ;
+my $now =  $tp_now->epoch ;
+my $tp_grace = Time::Piece->new($now - $gracetime); 
+my $tmdebug = sprintf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n",
+	 $tp_grace->strftime($dtformat),  $tp_now->strftime($dtformat), $gracetime;
 
-DEBUG( $now, \@rrds, \@rrdlist , $gracetime, $reload  );
+DEBUG( $now, \@rrds, \@rrdlist , $gracetime, $reload  , $tmdebug, $tmdebug  );
 # DEBUG( $gracetime  , $reload , \@rrds,  $q );
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
-my $firstparam = $ARGV[0] ;
-
-if ( $firstparam   =~ /^\d+$/ ) {
-	### printf "%s looks like a number\n", $firstparam ;
-	$gracetime = shift @ARGV  ;
-} else {
-	###  printf "%s is not a number \n", $firstparam ;
-	$gracetime = 60 ;
-}
-
-# info header line
-printf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n", 
-	$gracetime , mydatetime($now) , mydatetime($now - $gracetime ) ;
+# printf "===    gracetime: %s    =    now: %s    =    diff: %s    ===\n", 
+# 	$gracetime , mydatetime($now) , mydatetime($now - $gracetime ) ;
 
 # ~~~~ loop over rrds ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~+
 
@@ -123,16 +122,3 @@ print " =============== DONE - errors: $errcnt ==============\n";
 exit ( $errcnt ? 1 : 0 )  ;
 
 # ======================================
-sub mydatetime {
-  my $arg = shift;
-  my $rv =`date -d \@$arg $dtformat` ;
-  chomp $rv;
-  return $rv ;
-}
-
-sub mynow {
-  my $rv = `date \+\%s`;
-  chomp $rv;
-  return $rv ;
-
-}
