@@ -138,6 +138,9 @@ my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows'
 
 # our $timezone = DateTime::TimeZone->new( name => ( $opt_z ? $opt_z : 'local' ) ) ;
 
+# my $tzoffset =  defined $q_all_params{ 'tzoffset' } ? $q->param('tzoffset') : 
+
+
 # after this header we may print pretty much anything
 print $q->header(-type => 'text/plain',  -charset => 'utf8' );
 
@@ -169,7 +172,7 @@ my $datlen = $#$data;
 
 my $dt = Time::Piece->new( $rrd_start);
 # shall we keep timezoning?
-$dt->tzoffset = $q->param('tzoffset' ) if defined $q_all_params{ 'tzoffset' } ;
+# $dt->tzoffset = $q->param('tzoffset' ) if defined $q_all_params{ 'tzoffset' } ;
 my $dt_hr = $dt->strftime($dt_format) ;
 print  Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr ) if $debug >=3 ;
 
@@ -180,7 +183,7 @@ print  Dumper ('after' , $valid_rows);
 
 # debug_printf (3, "total cols: %d - lower limit for valid Data points per row : %d \n ", $#$names , $valid_rows );
 
-exit;
+# exit;
 # ---- do your work ----
 #
 if ( $outfile) {
@@ -190,7 +193,7 @@ if ( $outfile) {
   *OF = *STDOUT;
 }
 
-debug_printf ( 3, "opened output file: %s\n", $outfile ); 
+# debug_printf ( 3, "opened output file: %s\n", $outfile ); 
 
 # conditional header - see -t option
 #
@@ -199,11 +202,12 @@ if ($header) {
    print  OF $titleline . "\n";
 }
 
-my $timezone = 'TODO'; # TODO
-# main loop over data rows, we count by index to keep close to metal
+
+# exit;
+# my $timezone = main loop over data rows, we count by index to keep close to metal
 for my $rowcnt (0 .. $#$data ) {
    my $datarow = $$data[ $rowcnt ];			# the real data
-   my $rowtime = $start + $rowcnt * $step;		# time is calculated
+   my $rowtime = $rrd_start + $rowcnt * $step;		# time is calculated
 
    # skip for data row's with too many NaN s
    my $defcnt = 0 ;
@@ -212,22 +216,25 @@ for my $rowcnt (0 .. $#$data ) {
 
    # time string format selection
    my $timestring;
-   # if ( $opt_M ) {   TODO
-   if ( 0 ) {
+   # my $dtr = Time::Piece->new($rowtime); # TODO skip if not 
+   # if ( $opt_M ) {   
+   if ( defined $q_all_params{mysqltime} ) {
+      my $dtr = Time::Piece->new($rowtime); 
       # mysql datetime format YYYY-MM-DD HH:MM:SS
-      my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
-      $timestring =  sprintf ( "%s %s", $dt->ymd('-') , $dt->hms(':') ) ;
-   } elsif (1) {   #   ( $opt_H ) {  TODO
+      # my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
+      $timestring =  sprintf ( "%s %s", $dtr->ymd , $dt->hms ) ;
+   } elsif ( defined $q_all_params{humantime} ) {   #   (  ) {  
       # human readable datetime e.g. 22.12.2020-05:00:00 , i.e. dd.mm.yyyy-hh:mm:ss
-      my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
-      $timestring =  sprintf ( "%s-%s", $dt->dmy('.') , $dt->hms );
+      # my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
+      my $dtr = Time::Piece->new($rowtime);
+      $timestring =  sprintf ( "%s-%s", $dtr->dmy('.') , $dtr->hms );
    } else {
      $timestring = sprintf "%s" , $rowtime ;
    }
 
    my $dataline = my_join ( $delim, $sep, $timestring, @$datarow ) ;
    print  OF $dataline . "\n";
-
+   # exit;
 } 
 
 close OF if ( $outfile) ;
