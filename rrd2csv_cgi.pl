@@ -150,22 +150,26 @@ print Dumper ($q) if  $debug >=3 ;
 # my $rrdfile = abs_path($rrd);
 my $rrdfile = `ls $rrd`;
 chomp $rrdfile;
-print Dumper ($rrd, $rrdfile);
+# print Dumper ($rrd, $rrdfile);
 
 print Dumper ($rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      ) if $debug >=3 ;
 
-exit;
+# exit;
 
 # collect parameters for database call
 my @paramlist = ($rrdfile, $cf, '-s', $start, '-e', $end);
 push @paramlist, '-a' if $align ;
 push @paramlist, ('-r', $res ) if $res ; 
 
-debug_printf (3, "%s\n", join ( ' | ', @paramlist));
+print  Dumper ( @paramlist ) if $debug >=3 ;
+# exit;
+# debug_printf (3, "%s\n", join ( ' | ', @paramlist));
 
 # ====== call the database ========
-my ($rrd_start,$step,$names,$data) ; # = RRDs::fetch (@paramlist); TODO
+my ($rrd_start,$step,$names,$data)  = RRDs::fetch (@paramlist); 
 
+print  Dumper ( RRDs::error, $rrd_start,$step,$#$names,$#$data);
+exit;
 # nice time formating - for debug and for exercise...
 my $dt ; # = DateTime->from_epoch( epoch => $start , time_zone => $timezone  );
 # my $step= "dontknow"; 	# TODO
