@@ -99,7 +99,7 @@ use Cwd 'abs_path'   ;
 
 my $debug_default = 3;
 my $test_rrd = '/var/lib/collectd/rrd/kellerkind.rosner.lokal/cpu-0/percent-idle.rrd' ;
-
+my $dt_format = '%F %T' ;
 
 my $q = CGI->new;
 my %q_all_params = $q->Vars ;
@@ -154,37 +154,33 @@ chomp $rrdfile;
 
 print Dumper ($rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      ) if $debug >=3 ;
 
-# exit;
-
 # collect parameters for database call
 my @paramlist = ($rrdfile, $cf, '-s', $start, '-e', $end);
 push @paramlist, '-a' if $align ;
 push @paramlist, ('-r', $res ) if $res ; 
 
 print  Dumper ( @paramlist ) if $debug >=3 ;
-# exit;
-# debug_printf (3, "%s\n", join ( ' | ', @paramlist));
 
 # ====== call the database ========
 my ($rrd_start,$step,$names,$data)  = RRDs::fetch (@paramlist); 
 
-print  Dumper ( RRDs::error, $rrd_start,$step,$#$names,$#$data);
-exit;
-# nice time formating - for debug and for exercise...
-my $dt ; # = DateTime->from_epoch( epoch => $start , time_zone => $timezone  );
-# my $step= "dontknow"; 	# TODO
-# my $names = "TODO";	# TODO
-# my $data  = "TODO";	# TODO
+my $namlen = $#$names;
+my $datlen = $#$data;
 
-debug_printf ( 3, "retrieved, \n start %s step %d, columns %d, rows %d\n\tErr: >%s<\n", 
-       	$dt->datetime('_'),
-	$step, $#$names, $#$data, RRDs::error);
+my $dt = Time::Piece->new( $rrd_start);
+# shall we keep timezoning?
+$dt->tzoffset = $q->param('tzoffset' ) if defined $q_all_params{ 'tzoffset' } ;
+my $dt_hr = $dt->strftime($dt_format) ;
+print  Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr ) if $debug >=3 ;
 
 # pre-process -V option ... valid rows - map the complement format
+print  Dumper ('before' , $valid_rows);
 if ( $valid_rows < 0 ) { $valid_rows = $#$names + $valid_rows +1 ; }
+print  Dumper ('after' , $valid_rows);
 
-debug_printf (3, "total cols: %d - lower limit for valid Data points per row : %d \n ", $#$names , $valid_rows );
+# debug_printf (3, "total cols: %d - lower limit for valid Data points per row : %d \n ", $#$names , $valid_rows );
 
+exit;
 # ---- do your work ----
 #
 if ( $outfile) {
