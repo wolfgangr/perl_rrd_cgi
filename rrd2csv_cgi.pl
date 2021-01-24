@@ -94,7 +94,7 @@ use  RRDs;
 # use DateTime;
 # use Data::Dumper  ;
 # use Data::Dumper::Simple  ; conditionally on debug only
-use Cwd qw( abs_path )  ;
+use Cwd 'abs_path'   ;
 
 
 my $debug_default = 3;
@@ -107,8 +107,8 @@ our $debug  = (defined $q_all_params{debug}) ?  $q->param('debug')  : $debug_def
 if ($debug) { use Data::Dumper::Simple ;}
 
 
-my $rrdfile =  abs_path($q->param('rrd') ||  $test_rrd ) ;
-my $cf = $q->param('rrd') || 'AVERAGE' ; 
+my $rrd =  ($q->param('rrd') ||  $test_rrd ) ;
+my $cf = $q->param('CF') || 'AVERAGE' ; 
 
 
 
@@ -142,10 +142,17 @@ my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows'
 print $q->header(-type => 'text/plain',  -charset => 'utf8' );
 
 # my $rrdfile = "noclue";
-debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
- 	$rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
+# debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
+# 	$rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
 
-print Dumper ($rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
+print Dumper ($q) if  $debug >=3 ;
+
+# my $rrdfile = abs_path($rrd);
+my $rrdfile = `ls $rrd`;
+chomp $rrdfile;
+print Dumper ($rrd, $rrdfile);
+
+print Dumper ($rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      ) if $debug >=3 ;
 
 exit;
 
