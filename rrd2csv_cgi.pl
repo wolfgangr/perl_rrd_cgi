@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 #
 # extract data from rrd and write csv data
-
+# TODO transfer from cmdline tool to cgi
+#
 our $usage = <<"EOF_USAGE";
 usage: $0 db.rrd CF
   [-s start][-e end][-r res][-a]  [-V valid-rows ]
@@ -82,59 +83,84 @@ EOF_USAGE_L
 
 # our $timezone = 
 
-use Getopt::Std;
+
+use warnings;
+use strict;
+use CGI();
+use Time::Piece();
+# use Data::Dumper::Simple ;
+
+
+# use Getopt::Std;
 use  RRDs;
-use DateTime;
-use Data::Dumper  ;
+# use DateTime;
+# use Data::Dumper  ;
+
+my $debug_default = 3;
+
+my $q = CGI->new;
+my %q_all_params = $q->Vars ;
+our $debug  = (defined $q_all_params{debug}) ?  $q->param('debug')  : $debug_default ;
+if ($debug) { use Data::Dumper::Simple ;}
+
+
+my $rrds = $q->param('rrd') ; # or die / debug.... TODO
+my $cf = $q->param('rrd') || 'AVERAGE' ; 
 
 
 
-our $debug =0; 	# default, overwritten by -v option
+# die "$usage" unless $rrdfile;
+# die "$usage_long" if ( ! ($cf) ) or $rrdfile eq '-h' or $cf eq '-h' ;
 
-# we need at least a rrd file name and a CF
+# my $retval = getopts('s:e:tT:HMx:d:r:af:HMv:V:hz:')  ;
+# die "$usage" unless ($retval) ;
+# die "$usage_long" if $opt_h  ;
 
-my $rrdfile = shift @ARGV;
-my $cf      = shift @ARGV;
+my $start  = $q->param('start')  || 'e-1d';
+my $end    = $q->param('end')  || 'n';
+my $header = defined $q_all_params{ header } ;
+my $hl_timetag =  $q->param('time') || 'time' ;
+my $sep    = $q->param('sep')  || ';' ; 
+my $delim  = $q->param('delim')  || '';
+my $align  = defined $q_all_params{ align } ;
+my $res    = $q->param('step')   ;
+my $outfile = $q->param('out')  ;
+# $debug = $opt_v unless $opt_v eq ''; 
 
-die "$usage" unless $rrdfile;
-die "$usage_long" if ( ! ($cf) ) or $rrdfile eq '-h' or $cf eq '-h' ;
+# my $valid_rows = 1 ;
+# unless  ($opt_V eq '') {  $valid_rows = $opt_V ;  }
 
-my $retval = getopts('s:e:tT:HMx:d:r:af:HMv:V:hz:')  ;
-die "$usage" unless ($retval) ;
+my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows') : 1 ;
 
-die "$usage_long" if $opt_h  ;
 
-my $start  = $opt_s  || 'e-1d';
-my $end    = $opt_e  || 'n';
-my $header = $opt_t;
-my $hl_timetag = $opt_T || 'time' ;
-my $sep    = $opt_x || ';' ; 
-my $delim  = $opt_d ; # || ' ';
-my $align  = $opt_a;
-my $res    = $opt_r;
-my $outfile = $opt_f ;
-$debug = $opt_v unless $opt_v eq ''; 
+# our $timezone = DateTime::TimeZone->new( name => ( $opt_z ? $opt_z : 'local' ) ) ;
 
-my $valid_rows = 1 ;
-unless  ($opt_V eq '') {  $valid_rows = $opt_V ;  }
+# after this header we may print pretty much anything
+print $q->header(-type => 'text/plain',  -charset => 'utf8' );
 
-our $timezone = DateTime::TimeZone->new( name => ( $opt_z ? $opt_z : 'local' ) ) ;
-
+my $rrdfile = "noclue";
 debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
-	$rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
+ 	$rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
+
+
+exit;
 
 # collect parameters for database call
-@paramlist = ($rrdfile, $cf, '-s', $start, '-e', $end);
+my @paramlist = ($rrdfile, $cf, '-s', $start, '-e', $end);
 push @paramlist, '-a' if $align ;
 push @paramlist, ('-r', $res ) if $res ; 
 
 debug_printf (3, "%s\n", join ( ' | ', @paramlist));
 
 # ====== call the database ========
-my ($start,$step,$names,$data) = RRDs::fetch (@paramlist);
+# my ($start,$step,$names,$data) = RRDs::fetch (@paramlist);
 
 # nice time formating - for debug and for exercise...
-my $dt = DateTime->from_epoch( epoch => $start , time_zone => $timezone  );
+my $dt ; # = DateTime->from_epoch( epoch => $start , time_zone => $timezone  );
+my $step= "dontknow"; 	# TODO
+my $names = "TODO";	# TODO
+my $data  = "TODO";	# TODO
+
 debug_printf ( 3, "retrieved, \n start %s step %d, columns %d, rows %d\n\tErr: >%s<\n", 
        	$dt->datetime('_'),
 	$step, $#$names, $#$data, RRDs::error);
@@ -162,6 +188,7 @@ if ($header) {
    print  OF $titleline . "\n";
 }
 
+my $timezone = 'TODO'; # TODO
 # main loop over data rows, we count by index to keep close to metal
 for my $rowcnt (0 .. $#$data ) {
    my $datarow = $$data[ $rowcnt ];			# the real data
@@ -174,11 +201,12 @@ for my $rowcnt (0 .. $#$data ) {
 
    # time string format selection
    my $timestring;
-   if ( $opt_M ) {
+   # if ( $opt_M ) {   TODO
+   if ( 0 ) {
       # mysql datetime format YYYY-MM-DD HH:MM:SS
       my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
       $timestring =  sprintf ( "%s %s", $dt->ymd('-') , $dt->hms(':') ) ;
-   } elsif ( $opt_H ) {
+   } elsif (1) {   #   ( $opt_H ) {  TODO
       # human readable datetime e.g. 22.12.2020-05:00:00 , i.e. dd.mm.yyyy-hh:mm:ss
       my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
       $timestring =  sprintf ( "%s-%s", $dt->dmy('.') , $dt->hms );
@@ -198,13 +226,13 @@ exit ;
 #=========================================
 # debug_print($level, $content)
 sub debug_print {
-  $level = shift @_;
-  print STDERR @_ if ( $level <= $debug) ;
+  my $level = shift @_;
+  print  @_ if ( $level <= $debug) ;
 }
 
 sub debug_printf {
-  $level = shift @_;
-  printf STDERR  @_ if ( $level <= $debug) ;
+  my $level = shift @_;
+  printf   @_ if ( $level <= $debug) ;
 }
 
 # my_join : extended join with delim and seperators
