@@ -89,14 +89,17 @@ use strict;
 use CGI();
 use Time::Piece();
 # use Data::Dumper::Simple ;
-
-
 # use Getopt::Std;
 use  RRDs;
 # use DateTime;
 # use Data::Dumper  ;
+# use Data::Dumper::Simple  ; conditionally on debug only
+use Cwd qw( abs_path )  ;
+
 
 my $debug_default = 3;
+my $test_rrd = '/var/lib/collectd/rrd/kellerkind.rosner.lokal/cpu-0/percent-idle.rrd' ;
+
 
 my $q = CGI->new;
 my %q_all_params = $q->Vars ;
@@ -104,7 +107,7 @@ our $debug  = (defined $q_all_params{debug}) ?  $q->param('debug')  : $debug_def
 if ($debug) { use Data::Dumper::Simple ;}
 
 
-my $rrds = $q->param('rrd') ; # or die / debug.... TODO
+my $rrdfile =  abs_path($q->param('rrd') ||  $test_rrd ) ;
 my $cf = $q->param('rrd') || 'AVERAGE' ; 
 
 
@@ -118,13 +121,13 @@ my $cf = $q->param('rrd') || 'AVERAGE' ;
 
 my $start  = $q->param('start')  || 'e-1d';
 my $end    = $q->param('end')  || 'n';
-my $header = defined $q_all_params{ header } ;
+my $header = (defined $q_all_params{ header }) ;
 my $hl_timetag =  $q->param('time') || 'time' ;
 my $sep    = $q->param('sep')  || ';' ; 
 my $delim  = $q->param('delim')  || '';
-my $align  = defined $q_all_params{ align } ;
-my $res    = $q->param('step')   ;
-my $outfile = $q->param('out')  ;
+my $align  = (defined $q_all_params{ align }) ;
+my $res    = $q->param('step') || 0  ;
+my $outfile = $q->param('out') || ''   ;
 # $debug = $opt_v unless $opt_v eq ''; 
 
 # my $valid_rows = 1 ;
@@ -138,10 +141,11 @@ my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows'
 # after this header we may print pretty much anything
 print $q->header(-type => 'text/plain',  -charset => 'utf8' );
 
-my $rrdfile = "noclue";
+# my $rrdfile = "noclue";
 debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
  	$rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
 
+print Dumper ($rrdfile, $cf, $start, $end, $res, $align, $outfile, $header , $sep, $delim      );
 
 exit;
 
@@ -153,13 +157,13 @@ push @paramlist, ('-r', $res ) if $res ;
 debug_printf (3, "%s\n", join ( ' | ', @paramlist));
 
 # ====== call the database ========
-# my ($start,$step,$names,$data) = RRDs::fetch (@paramlist);
+my ($rrd_start,$step,$names,$data) ; # = RRDs::fetch (@paramlist); TODO
 
 # nice time formating - for debug and for exercise...
 my $dt ; # = DateTime->from_epoch( epoch => $start , time_zone => $timezone  );
-my $step= "dontknow"; 	# TODO
-my $names = "TODO";	# TODO
-my $data  = "TODO";	# TODO
+# my $step= "dontknow"; 	# TODO
+# my $names = "TODO";	# TODO
+# my $data  = "TODO";	# TODO
 
 debug_printf ( 3, "retrieved, \n start %s step %d, columns %d, rows %d\n\tErr: >%s<\n", 
        	$dt->datetime('_'),
