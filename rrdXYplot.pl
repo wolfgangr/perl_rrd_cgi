@@ -236,30 +236,59 @@ test
 ENDOFCOMMAND
 
 
-if ($q->param('test') eq 'true') {
+if ( defined $q_all_params{test} ) {
 # if (1) {
 	$command = $testcmd ;
 } else {
+	my @defcol =('eeeeee','000000','000000',
+	      '0000ff','ff0000','44ff44','ffff00','ff00ff','44ffff');
+	$command= "set term png";
 
-	my_die ( Dumper ($q)) ;
-	my_die ("hit the ground");
+
+	for my $i ('b','e','a',(1..9)) {
+		my $tmp = shift(@defcol);
+		if ($q->param("color$i")) { $tmp =$q->param("color$i");}
+			# fixme#####
+			#  see https://sourceforge.net/p/gnuplot/bugs/1155/
+			# they changed the color format :-(
+		if ($tmp) { $command .= " x$tmp"; }
+	}
+	$command .= "\n";
+	$command .="set output \"$temppng\"\n";
+	$command .= "set timestamp \"\%d.\%m.\%Y \%H:\%M\"\n";
+	$command .= "set ylabel FOO\n";
+	$command .= "set title PIPAPO \n";
+
+
+	if ( defined $q_all_params{ grid } ) {
+		$command .= "set grid\n";
+	}
+
+
+	$command .= "set style data lines\n";
+	$command .= "set xlabel tralala\n";
+
+
+	$command .= "plot";
+	$command .="\n";
+
+	# my_die ( Dumper ($q)) ;
+	# my_die ( $command , "DEBUG");
+	# my_die ("hit the ground", "================ GAME OVER ==================");
 }
 
-#~~~~~~~~~~~~~~~~ cutting edge BOTTOM in boiler plate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# debug_printf ( 3, "opened output file: %s\n", $outfile ); 
 
-# conditional header - see -t option
-#
-if ($header) { 
-   my $titleline = my_join ( $delim, $sep, $hl_timetag , @$names) ;
-   print  OF $titleline . "\n";
-}
-
+# wrosner@cleo3:~$ cat /var/www/tmp/sqlplot/plot-1487902327.data
+# 76 76 76 2016-12-30 17:00:00
+# 76 77.3077 78 2016-12-30 18:00:00
+# 76 76.9091 78 2016-12-30 19:00:00
+# 79 81.3684 84 2016-12-30 20:00:00
+# 84 84.5152 85 2016-12-30 21:00:00
 
 
 open ( GNUPLOT, "| $gnuplot > $templog 2>&1" ) or my_die ("cannot open gnuplot")   ;
 print GNUPLOT $command    or my_die  ("cannot send data to gnuplot") ;
-close GNUPLOT              ;  # || gnuploterror($command, $templog);
+close GNUPLOT || gnuploterror($command, $templog);
 
 print "Content-type: image/png\n\n";
 print `cat -u $temppng`;   
@@ -273,6 +302,16 @@ unlink $templog;
 
 exit;
 
+#~~~~~~~~~~~~~~~~ cutting edge BOTTOM in boiler plate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+# debug_printf ( 3, "opened output file: %s\n", $outfile );
+
+# conditional header - see -t option
+#
+if ($header) {
+   my $titleline = my_join ( $delim, $sep, $hl_timetag , @$names) ;
+   print  OF $titleline . "\n";
+}
 
 
 # exit;
@@ -332,3 +371,32 @@ sub my_die {
 	exit;
 
 }
+
+
+sub gnuploterror {
+
+  my ($command, $logfile) = @_;
+
+  print "Content-type: text/html\n\n";
+  print "<html><head><title>Gnuplot Error </title></head><body>\n";
+  print "<h1>Gnuplot Error:</h1>";
+
+  print "<h3>gnuplot reported:</h3>\n"; 
+  print "<pre>\n";
+  print  `cat -u $logfile`;
+  print "</pre>\n";
+
+  print "<h1>gnuplot command was:</h1>\n";
+  print "<pre>\n";
+  print  $command;
+  print "</pre>\n";
+
+  print "</body></html>";
+
+  # $dbh->disconnect;
+
+  exit;
+}
+
+
+
