@@ -110,7 +110,8 @@ if ($debug) { use Data::Dumper::Simple ;}
 my $rrd =  ($q->param('rrd') ||  $test_rrd ) ;
 my $cf = $q->param('CF') || 'AVERAGE' ; 
 
-
+my_die (' no valid rrd file ' , $usage);
+my_die (' usage instructions: ' , $usage_long);
 
 # die "$usage" unless $rrdfile;
 # die "$usage_long" if ( ! ($cf) ) or $rrdfile eq '-h' or $cf eq '-h' ;
@@ -135,14 +136,19 @@ my $outfile = $q->param('out') || ''   ;
 
 my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows') : 1 ;
 
+my $ct;
+if (defined $q_all_params{ content_type }) {
+	$ct = $q->param('content_type' );
+	$debug = 0 ;  # don't clobber other drains than browser window
+} else {
+	$ct = 'text/plain';
+}
 
-# our $timezone = DateTime::TimeZone->new( name => ( $opt_z ? $opt_z : 'local' ) ) ;
 
-# my $tzoffset =  defined $q_all_params{ 'tzoffset' } ? $q->param('tzoffset') : 
 
 
 # after this header we may print pretty much anything
-print $q->header(-type => 'text/plain',  -charset => 'utf8' );
+print $q->header(-type =>  $ct,  -charset => 'utf8' );
 
 # my $rrdfile = "noclue";
 # debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
@@ -177,9 +183,9 @@ my $dt_hr = $dt->strftime($dt_format) ;
 print  Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr ) if $debug >=3 ;
 
 # pre-process -V option ... valid rows - map the complement format
-print  Dumper ('before' , $valid_rows);
+# print  Dumper ('before' , $valid_rows);
 if ( $valid_rows < 0 ) { $valid_rows = $#$names + $valid_rows +1 ; }
-print  Dumper ('after' , $valid_rows);
+# print  Dumper ('after' , $valid_rows);
 
 # debug_printf (3, "total cols: %d - lower limit for valid Data points per row : %d \n ", $#$names , $valid_rows );
 
@@ -216,16 +222,13 @@ for my $rowcnt (0 .. $#$data ) {
 
    # time string format selection
    my $timestring;
-   # my $dtr = Time::Piece->new($rowtime); # TODO skip if not 
-   # if ( $opt_M ) {   
+
    if ( defined $q_all_params{mysqltime} ) {
       my $dtr = Time::Piece->new($rowtime); 
       # mysql datetime format YYYY-MM-DD HH:MM:SS
-      # my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
       $timestring =  sprintf ( "%s %s", $dtr->ymd , $dt->hms ) ;
    } elsif ( defined $q_all_params{humantime} ) {   #   (  ) {  
       # human readable datetime e.g. 22.12.2020-05:00:00 , i.e. dd.mm.yyyy-hh:mm:ss
-      # my $dt =  DateTime->from_epoch( epoch => $rowtime ,  time_zone => $timezone );
       my $dtr = Time::Piece->new($rowtime);
       $timestring =  sprintf ( "%s-%s", $dtr->dmy('.') , $dtr->hms );
    } else {
@@ -234,7 +237,6 @@ for my $rowcnt (0 .. $#$data ) {
 
    my $dataline = my_join ( $delim, $sep, $timestring, @$datarow ) ;
    print  OF $dataline . "\n";
-   # exit;
 } 
 
 close OF if ( $outfile) ;
@@ -242,16 +244,6 @@ close OF if ( $outfile) ;
 exit ;
 
 #=========================================
-# debug_print($level, $content)
-sub debug_print {
-  my $level = shift @_;
-  print  @_ if ( $level <= $debug) ;
-}
-
-sub debug_printf {
-  my $level = shift @_;
-  printf   @_ if ( $level <= $debug) ;
-}
 
 # my_join : extended join with delim and seperators
 # my_join ( delim, sep, @stuff )
@@ -260,4 +252,17 @@ sub my_join {
   my $sep   = shift  @_ ;
   my $rv  =   return join ( $sep, map { sprintf ( "%s%s%s", $delim, $_ ,$delim) } @_ ) ;
   return $rv ;
+}
+
+# resemble "die", supply ($message $usage)
+sub my_die {
+	my ($msg, $usage) = @_ ;
+	print $q->header(-type =>  'text/html',  -charset => 'utf8' );
+	print "<html><pre>";
+	print "\n$msg\n";
+	print "============================================================" . "\n";
+	print $usage ;
+	print "</pre></html>";
+	exit;
+
 }
