@@ -251,13 +251,13 @@ if ( defined $q_all_params{test} ) {
 			# fixme#####
 			#  see https://sourceforge.net/p/gnuplot/bugs/1155/
 			# they changed the color format :-(
-		if ($tmp) { $command .= " x$tmp"; }
+			# if ($tmp) { $command .= " x$tmp"; }
 	}
 	$command .= "\n";
 	$command .="set output \"$temppng\"\n";
 	$command .= "set timestamp \"\%d.\%m.\%Y \%H:\%M\"\n";
-	$command .= "set ylabel FOO\n";
-	$command .= "set title PIPAPO \n";
+	$command .= "set ylabel \"FOO\"\n";
+	$command .= "set title \"PIPAPO\" \n";
 
 
 	if ( defined $q_all_params{ grid } ) {
@@ -266,10 +266,10 @@ if ( defined $q_all_params{test} ) {
 
 
 	$command .= "set style data lines\n";
-	$command .= "set xlabel tralala\n";
+	$command .= "set xlabel \"tralala\"\n";
 
 
-	$command .= "plot";
+	$command .= "plot sin(x)";
 	$command .="\n";
 
 	# my_die ( Dumper ($q)) ;
