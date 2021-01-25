@@ -74,9 +74,13 @@ May still server as boilerplates.
 
 ### updates Jan 2021
 
+I wrote those scripts with a rough cgi param interface.  
+However, their intended use is more as boilerplate for specific installations.  
+May hardcode paramaters and tuning inside.  
+
 #### rrdtest_cgi.pl
 
-Simple web interface resembling `rrdtool lastupdate`  
+Simple crude web interface resembling `rrdtool lastupdate`  
 Displays last data and time logged.  
 Handy to monitor both logged target and logging itself.  
 
@@ -93,7 +97,9 @@ URL: `http://my.server.address/pl_cgi/rrdtest_cgi.pl?rrd=~user/foo/bar/*.rrd`
 ```
 todo:  
 - human readable time
+- gracetim timeout checking
 - implement auto reload
+- online help
 
 
 #### `rrd2csv_cgi.pl`
