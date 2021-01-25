@@ -122,8 +122,8 @@ if ($debug) { use Data::Dumper::Simple ;}
 my $rrd =  ($q->param('rrd') ||  $test_rrd ) ;
 my $cf = $q->param('CF') || 'AVERAGE' ; 
 
-my $usage = "usage todo";
-my $usage_long = "comprehensive usage todo";
+# my $usage = "usage todo";
+# my $usage_long = "comprehensive usage todo";
 
 
 # my_die (' missing parameters ' , $usage) unless %q_all_params ;
@@ -153,13 +153,6 @@ my $outfile = $q->param('out') || ''   ;
 
 my $valid_rows = (defined $q_all_params{ valid_rows })  ? $q->param('valid_rows') : 1 ;
 
-my $ct;
-if (defined $q_all_params{ content_type }) {
-	$ct = $q->param('content_type' );
-	$debug = 0 ;  # don't clobber other drains than browser window
-} else {
-	$ct = 'text/plain';
-}
 
 
 
@@ -243,10 +236,15 @@ test
 ENDOFCOMMAND
 
 
-#if ($cgiquery->param('test') eq 'true') {
-if (1) {
+if ($q->param('test') eq 'true') {
+# if (1) {
 	$command = $testcmd ;
+} else {
+
+	my_die ( Dumper ($q)) ;
+	my_die ("hit the ground");
 }
+
 #~~~~~~~~~~~~~~~~ cutting edge BOTTOM in boiler plate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # debug_printf ( 3, "opened output file: %s\n", $outfile ); 
 
