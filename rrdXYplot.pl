@@ -122,7 +122,11 @@ if ($debug) { use Data::Dumper::Simple ;}
 my $rrd =  ($q->param('rrd') ||  $test_rrd ) ;
 my $cf = $q->param('CF') || 'AVERAGE' ; 
 
-my_die (' missing parameters ' , $usage) unless %q_all_params ;
+my $usage = "usage todo";
+my $usage_long = "comprehensive usage todo";
+
+
+# my_die (' missing parameters ' , $usage) unless %q_all_params ;
 my_die (' usage instructions: ' , $usage_long) 
 	if (defined $q_all_params{help}  or  defined $q_all_params{keywords}    ) ;
 
@@ -161,7 +165,7 @@ if (defined $q_all_params{ content_type }) {
 
 
 # after this header we may print pretty much anything
-print $q->header(-type =>  $ct,  -charset => 'utf8' );
+# print $q->header(-type =>  $ct,  -charset => 'utf8' );
 
 # my $rrdfile = "noclue";
 # debug_printf (3, "parameter db=%s CF=%s start=%s end=%s resolution=%s align=%d output=%s header=%s sep=%s delim=%s \n",
@@ -212,6 +216,38 @@ if ( $outfile) {
   *OF = *STDOUT;
 }
 
+#~~~~~~~~~~~~~~~~ cutting edge TOP in boiler plate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# plot interface recycled from
+# https://github.com/wolfgangr/sqlplot/blob/master/sqlplot.cgi
+
+# $gnuplot = "/usr/bin/gnuplot";
+my $gnuplot = `which gnuplot`  or my_die ("gnuplot executable not found - installed?")   ;
+chomp $gnuplot;
+# $tempfile_prefix="/var/www/tmp/sqlplot/plot-";
+my $tempfile_prefix="./tmp/sqlplot/plot-";
+
+my $tempfile_body = $tempfile_prefix . time; 
+my $temppng  = $tempfile_body . '.png';
+my $tempdata = $tempfile_body . '.data';
+my $templog  = $tempfile_body . '.log';
+
+
+
+my $command;
+
+my $testcmd= <<ENDOFCOMMAND;
+set term png
+set output "$temppng"
+test
+ENDOFCOMMAND
+
+
+#if ($cgiquery->param('test') eq 'true') {
+if (1) {
+	$command = $testcmd ;
+}
+#~~~~~~~~~~~~~~~~ cutting edge BOTTOM in boiler plate ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # debug_printf ( 3, "opened output file: %s\n", $outfile ); 
 
 # conditional header - see -t option
@@ -220,6 +256,25 @@ if ($header) {
    my $titleline = my_join ( $delim, $sep, $hl_timetag , @$names) ;
    print  OF $titleline . "\n";
 }
+
+
+
+open ( GNUPLOT, "| $gnuplot > $templog 2>&1" ) or my_die ("cannot open gnuplot")   ;
+print GNUPLOT $command    or my_die  ("cannot send data to gnuplot") ;
+close GNUPLOT              ;  # || gnuploterror($command, $templog);
+
+print "Content-type: image/png\n\n";
+print `cat -u $temppng`;   
+
+exit;   # leave the stuff for debugging
+
+unlink $temppng;        # don't check for an error any more
+unlink $tempdata;
+unlink $templog;
+
+
+exit;
+
 
 
 # exit;
