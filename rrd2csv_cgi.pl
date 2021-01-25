@@ -4,10 +4,9 @@
 # TODO transfer from cmdline tool to cgi
 #
 our $usage = <<"EOF_USAGE";
-usage: $0 db.rrd CF
-  [-s start][-e end][-r res][-a]  [-V valid-rows ]
-  [-f outfile][-x sep][-d delim][-t][-T dttag][-z tz] [-H][-M]   
-  [-v #][-h]
+usage: $0?rrd=./path/to/my.rrd[&asdf[&bar=foo[&....
+	help debug=        	rrd= CF= start= end= step= valid_rows=
+	out= conten_type= header time= sep= delim=  tzoffset= mysqltime= humantime=
 EOF_USAGE
 
 
@@ -15,33 +14,39 @@ EOF_USAGE
 our $usage_long = <<"EOF_USAGE_L";
 $0:
 
-retrieve data from RRD and output them as CSV to file or STDOUT
+retrieve data from RRD and output them as CSV to file or browser 
 
 $usage 
 
 	for further details, see RRDtool fetch for details
+	and r_ead t_he f_unny s_sourcecode
+
+params implemented (or close to....)
+	(may be you have to play with urlescaping)
 	
-	db.rrd	
+	rrd=db.rrd	
 		rrd file name to retrieve data from
+		relative to script or absolute in server namespace
 
-	CF	rrd CF (AVERAGE,MIN,MAX,LAST)
+	CF=LAST	rrd CF (AVERAGE,MIN,MAX,LAST)
+		defaults to AVERAGE
 
-	-s starttime
+	start=starttime
 		transparently forwarded to RRDtool, 
 		default NOW - 1 day
 
-	-e endtime
+	end=endtime
 		transparently forwarded to RRDtool,
 		default NOW
 	
-	-r res 
+	step=sss 
 		resolution (seconds per value)
 		default is highest available in rrd
 
-	-a align
+	align
 		adjust starttime to resolution
 
-	-V valid rows
+	valid_rows=n
 		preselect rows by NaN'niness
 		(integer) minimum valid fields i.e not NaN per row
 		0 - include all empty (NaN only) rows
@@ -51,26 +56,33 @@ $usage
 		-1 - zero NaN allowed
 		-2 - one NaN allowed
 
-		        [-f outfile] [-h] [-H] [-x sep] [-d delim]
+	out=output.csf
+		default ist send to browser if omitted
+		be sure that the server has write permissions
 
-	-f output file
-		default ist STDOUT if omitted
+	sep=;	CSV field separator, default is  ';'
 
-	-x \;	CSV field separator, default is  ';'
+	delim=	CSV field delimiter, default is ''
 
-	-d \"	CSV field delimiter, default is ''
+	header	include header tag line
 
-	-t	include header tag line
+	time=timetag	
+		header line time tag, default ist 'time'
 
-	-T foo	header line time tag, default ist 'time'
+	humantime	
+		translate unixtime to H_uman readable time
 
-	-H	translate unixtime to H_uman readable time
-	-M	translate unixtime to M_ySQL timestamps
-	-z foo	set timezone, default is 'local'
+	mysqltime 	
+		translate unixtime to MySQL parseable timestamps
 
-	-v int	set verbosity level
+	tzoffset [TODO]	
+		set timezone offset, default is to use system locale
 
-	-h	print this message
+	help
+		print this message
+
+	debug=3
+		set verbosity level, levels may be configured in the source
 
 EOF_USAGE_L
 
@@ -110,8 +122,9 @@ if ($debug) { use Data::Dumper::Simple ;}
 my $rrd =  ($q->param('rrd') ||  $test_rrd ) ;
 my $cf = $q->param('CF') || 'AVERAGE' ; 
 
-my_die (' no valid rrd file ' , $usage);
-my_die (' usage instructions: ' , $usage_long);
+my_die (' missing parameters ' , $usage) unless %q_all_params ;
+my_die (' usage instructions: ' , $usage_long) 
+	if (defined $q_all_params{help}  or  defined $q_all_params{keywords}    ) ;
 
 # die "$usage" unless $rrdfile;
 # die "$usage_long" if ( ! ($cf) ) or $rrdfile eq '-h' or $cf eq '-h' ;
