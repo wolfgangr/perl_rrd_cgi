@@ -3,6 +3,7 @@
 # extract data from rrd and write csv data
 # TODO transfer from cmdline tool to cgi
 #
+# HACK: this is converterd from CSV exporter to gnuplotter, doc does not apply!
 our $usage = <<"EOF_USAGE";
 usage: $0?rrd=./path/to/my.rrd[&asdf[&bar=foo[&....
 	help debug=        	rrd= CF= start= end= step= valid_rows=
@@ -110,7 +111,8 @@ use Cwd 'abs_path'   ;
 
 
 my $debug_default = 3;
-my $test_rrd = '/var/lib/collectd/rrd/kellerkind.rosner.lokal/cpu-0/percent-idle.rrd' ;
+# my $test_rrd = '/var/lib/collectd/rrd/kellerkind.rosner.lokal/cpu-0/percent-idlie.rrd' ;
+my $test_rrd = '/home/wrosner/infini/parsel/infini.rrd';
 my $dt_format = '%F %T' ;
 
 my $q = CGI->new;
@@ -141,7 +143,7 @@ my $start  = $q->param('start')  || 'e-1d';
 my $end    = $q->param('end')  || 'n';
 my $header = (defined $q_all_params{ header }) ;
 my $hl_timetag =  $q->param('time') || 'time' ;
-my $sep    = $q->param('sep')  || ';' ; 
+my $sep    = $q->param('sep')  || ' ' ; 
 my $delim  = $q->param('delim')  || '';
 my $align  = (defined $q_all_params{ align }) ;
 my $res    = $q->param('step') || 0  ;
@@ -191,6 +193,9 @@ my $dt = Time::Piece->new( $rrd_start);
 # $dt->tzoffset = $q->param('tzoffset' ) if defined $q_all_params{ 'tzoffset' } ;
 my $dt_hr = $dt->strftime($dt_format) ;
 print  Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr ) if $debug >=3 ;
+
+# my $dump = Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr );
+# my_die ( scalar Dumper ( RRDs::error, $rrd_start,$step, $namlen, $datlen , $dt_hr ) );
 
 # pre-process -V option ... valid rows - map the complement format
 # print  Dumper ('before' , $valid_rows);
@@ -270,8 +275,20 @@ if ( defined $q_all_params{test} ) {
 
 
 	# $command .= "plot sin(x)";
-	$command .= <<"EOFPLOT" ;	
-plot '-', '-' , '-' axes x2y1
+	# $command .= "plot '-' axes x2y1";
+	my $cusm = <<"EOCUSM";
+a=0
+cumulative_sum(x) = (a=a+x,a)
+plot '-'  using (\$2):(cumulative_sum(\$4))
+EOCUSM
+	
+	# $command .= "plot '-'  using (\$2):(\$4) ";
+	$command .= $cusm ;
+
+
+
+	my $dummy = <<"EOFPLOT" ;	
+plot '-' axes x2y1
 1 1
 1 19
 19 19
@@ -306,8 +323,9 @@ EOFPLOT
 # 76 76.9091 78 2016-12-30 19:00:00
 # 79 81.3684 84 2016-12-30 20:00:00
 # 84 84.5152 85 2016-12-30 21:00:00
+goto DATA;
 
-
+RENDER:
 open ( GNUPLOT, "| $gnuplot > $templog 2>&1" ) or my_die ("cannot open gnuplot")   ;
 print GNUPLOT $command    or my_die  ("cannot send data to gnuplot") ;
 close GNUPLOT || gnuploterror($command, $templog);
@@ -330,12 +348,12 @@ exit;
 
 # conditional header - see -t option
 #
-if ($header) {
-   my $titleline = my_join ( $delim, $sep, $hl_timetag , @$names) ;
-   print  OF $titleline . "\n";
-}
+# if ($header) {
+#    my $titleline = my_join ( $delim, $sep, $hl_timetag , @$names) ;
+#    print  OF $titleline . "\n";
+# }
 
-
+DATA:
 # exit;
 # my $timezone = main loop over data rows, we count by index to keep close to metal
 for my $rowcnt (0 .. $#$data ) {
@@ -363,10 +381,12 @@ for my $rowcnt (0 .. $#$data ) {
    }
 
    my $dataline = my_join ( $delim, $sep, $timestring, @$datarow ) ;
-   print  OF $dataline . "\n";
+   $command .= $dataline . "\n";
 } 
 
-close OF if ( $outfile) ;
+# close OF if ( $outfile) ;
+
+goto RENDER;
 
 exit ;
 
